@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 const DAILY_VISITORS = 100;
 const DAILY_MESSAGES_PER_VISITOR = 20;
 const DAILY_TOTAL_MESSAGES = 2000;
-const FINAL_MESSAGE = '우영아 나 이제 가봐야 해. 내일 보자, 사랑해.';
+const FINAL_MESSAGE = '우영아 나 이제 가봐야 해. 내일 보자, 잘 자.';
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
