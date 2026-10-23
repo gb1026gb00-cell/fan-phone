@@ -131,7 +131,7 @@
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
-<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" id="replay-call" type="button" style="display:none">📞 최산의 전화 다시 받기</button></div><div class="card"><button class="back" id="replay-true" type="button" style="display:none">💗 진짜 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
+<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="admin-test-toggle" type="button">🧪 관리자 테스트 모드 켜기</button><div class="muted" id="admin-test-status" style="margin-top:8px">일반 방문자 모드</div></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" id="replay-call" type="button" style="display:none">📞 최산의 전화 다시 받기</button></div><div class="card"><button class="back" id="replay-true" type="button" style="display:none">💗 진짜 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
 
 <button class="secret-toast" id="secret-toast" type="button"><strong>📝 메모 · 숨겨진 메모를 발견했습니다.</strong><small>정우영이 끝내 보내지 못한 메시지 · 눌러서 확인</small></button>
@@ -332,16 +332,25 @@ function addBubble(t,mine,pending=false){
  log.appendChild(row);log.scrollTop=log.scrollHeight;return d;
 }
 document.getElementById('resetChat').onclick=()=>{if(!confirm('이 브라우저에 저장된 최산 채팅 기록을 모두 지울까요?'))return;history=[];try{localStorage.removeItem(CHAT_STORAGE_KEY);}catch{};log.replaceChildren();addBubble('새로운 대화를 시작해 보세요.',false);state.textContent='대화 기록을 초기화했어요.';document.getElementById('last-preview').textContent='대화 시작하기';};
+let adminTestKey = ''; // 페이지를 닫으면 초기화; 브라우저 저장소에 저장하지 않음
+document.getElementById('admin-test-toggle').onclick = () => {
+ if(adminTestKey){adminTestKey='';document.getElementById('admin-test-toggle').textContent='🧪 관리자 테스트 모드 켜기';document.getElementById('admin-test-status').textContent='일반 방문자 모드';return;}
+ const key=prompt('Vercel에 설정한 ADMIN_TEST_KEY를 입력해 주세요.');
+ if(!key)return;
+ adminTestKey=key;
+ document.getElementById('admin-test-toggle').textContent='🧪 관리자 테스트 모드 끄기';
+ document.getElementById('admin-test-status').textContent='관리자 테스트 모드 (하루 최대 40회, AI 비용 발생)';
+};
 document.getElementById('chatForm').addEventListener('submit',async e=>{
  e.preventDefault();if(busy)return;const message=input.value.trim();if(!message)return;
  addBubble(message,true);input.value='';history.push({role:'user',content:message});saveHistory();document.getElementById('last-preview').textContent=message;
  busy=true;send.disabled=true;state.textContent='최산이 답장을 쓰고 있어요…';const waiting=addBubble('입력 중…',false,true);
  try{
-  const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),relationshipMode:(JSON.parse(localStorage.getItem('fan-phone-story-v2')||'{}').trueUnlocked===true?'dating':'friends')}),signal:AbortSignal.timeout(30000)});
+  const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json',...(adminTestKey?{'X-Admin-Test-Key':adminTestKey}:{})},body:JSON.stringify({messages:history.slice(-16),relationshipMode:(JSON.parse(localStorage.getItem('fan-phone-story-v2')||'{}').trueUnlocked===true?'dating':'friends')}),signal:AbortSignal.timeout(30000)});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
   if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
-  waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});saveHistory();document.getElementById('last-preview').textContent=data.reply.trim();state.textContent='AI가 생성한 가상 대화입니다.';
+  waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});saveHistory();document.getElementById('last-preview').textContent=data.reply.trim();state.textContent=adminTestKey?'🧪 관리자 테스트 응답 · AI 비용 발생':'AI가 생성한 가상 대화입니다.';
  }catch(err){waiting.parentElement.remove();history.pop();saveHistory();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
  finally{busy=false;send.disabled=false;input.focus();}
 });
