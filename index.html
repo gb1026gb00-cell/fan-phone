@@ -654,6 +654,116 @@ document.getElementById('true-ending-close').onclick=()=>{
 const originalRefreshForDating=refreshStoryUI;
 refreshStoryUI=function(){originalRefreshForDating();refreshDatingLock();};
 
+
+
+// ── 히든 편지: 진엔딩 후 달라진 여섯 가지 흔적을 모두 찾아야 등장 ──
+const hiddenLetterTitle='정우영에게 (읽지 마)';
+const hiddenLetterBody=`야 정우영.
+
+이거 읽고 있냐?
+
+분명히 읽지 말라고 써 놨는데 또 읽고 있네. 진짜 말 안 듣는다 너는 ㅋㅋ
+
+근데 뭐, 네가 읽을 거 알고 쓴 거긴 해.
+
+아무튼.
+
+나 너 좋아한 지 꽤 됐어.
+
+얼마나 됐는지는 안 알려 줄 거야. 너 그거 알면 분명히 평생 놀릴 거잖아. 안 봐도 뻔해.
+
+근데 너도 좀 웃긴 게, 맨날 나한테 좋아한다고 장난은 그렇게 치면서 정작 중요한 순간에는 왜 그렇게 눈치를 보냐?
+
+솔직히 나도 별반 다르진 않았지만.
+
+네가 다른 사람이랑 놀러 간다고 하면 괜히 누구랑 가냐고 물어보고, 연락 늦게 보면 짜증 나고, 네가 보고 싶다고 하면 아무렇지도 않은 척하면서 사실 엄청 좋아했어.
+
+아, 이거 쓰니까 좀 짜증 나네.
+
+너 때문에 내가 별짓을 다 한다 진짜.
+
+근데 우영아.
+
+나 요즘 진짜 좋아.
+
+아침에 눈뜨면 너한테 연락해도 되고, 보고 싶으면 보고 싶다고 해도 되고, 네가 내 옆에 있는 게 이제는 당연한 일이 됐다는 게.
+
+그게 생각보다 엄청 좋더라.
+
+그러니까 앞으로도 나 많이 좋아해 줘.
+
+물론 내가 너 더 좋아할 것 같긴 한데 ㅋㅋ
+
+아, 그리고 이거 읽었다고 나한테 와서 놀리지 마라.
+
+특히 내가 너 좋아한 지 오래됐다는 거.
+
+진짜 놀리기만 해 봐.
+
+...
+
+사랑해, 정우영.
+
+이건 안 놀려도 돼.
+
+오래 보자.
+
+— 최산`;
+const hiddenLetterStorage='fan-phone-hidden-letter-v1';
+const hiddenRequired=['calendar','note','members','calls','safari','lock'];
+let hiddenProgress={};
+try{hiddenProgress=JSON.parse(localStorage.getItem(hiddenLetterStorage)||'{}')||{};}catch(e){hiddenProgress={};}
+let hiddenLetterAdded=false;
+function hiddenSave(){try{localStorage.setItem(hiddenLetterStorage,JSON.stringify(hiddenProgress));}catch(e){}}
+function hiddenReady(){return epilogueUnlocked()&&hiddenRequired.every(k=>hiddenProgress[k]===true);}
+function addHiddenLetter(){
+ if(!hiddenReady()||hiddenLetterAdded)return;
+ hiddenLetterAdded=true;
+ const button=document.createElement('button');button.className='note-item';button.type='button';
+ const title=document.createElement('span');title.className='note-title';title.textContent=hiddenLetterTitle;
+ const preview=document.createElement('span');preview.className='note-preview';preview.textContent='최산 · 읽지 말라니까 ㅋㅋ';
+ button.append(title,preview);
+ button.onclick=()=>{document.getElementById('note-detail-title').textContent=hiddenLetterTitle;document.getElementById('note-detail-body').textContent=hiddenLetterBody;show('note-detail');};
+ noteList.appendChild(button); // 알림 없이 메모 목록 맨 아래에 추가
+}
+function markHidden(k){
+ if(!epilogueUnlocked()||hiddenProgress[k])return;
+ hiddenProgress[k]=true;hiddenSave();addHiddenLetter();
+}
+// 각 멤버의 새 대화를 모두 읽어야 '멤버 카톡' 단서를 완료합니다.
+const originalOpenMemberForHidden=openMemberChat;
+openMemberChat=function(name){
+ originalOpenMemberForHidden(name);
+ if(!epilogueUnlocked()||!afterDatingConversations[name])return;
+ if(!Array.isArray(hiddenProgress.memberNames))hiddenProgress.memberNames=[];
+ if(!hiddenProgress.memberNames.includes(name)){hiddenProgress.memberNames.push(name);hiddenSave();}
+ if(Object.keys(afterDatingConversations).every(n=>hiddenProgress.memberNames.includes(n)))markHidden('members');
+};
+// 잠금 화면과 사파리의 새로운 기록을 실제로 확인한 경우에만 체크합니다.
+const originalShowForHidden=show;
+show=function(id){
+ originalShowForHidden(id);
+ if(id==='lock')markHidden('lock');
+ if(id==='safari')markHidden('safari');
+};
+// 진엔딩 이후에 추가된 메모와 전화 기록을 실제로 눌렀을 때 체크합니다.
+noteList.addEventListener('click',e=>{
+ const button=e.target.closest('.note-item');
+ if(button&&button.querySelector('.note-title')?.textContent==='산이가 좋아하는 거..')markHidden('note');
+});
+callList.addEventListener('click',e=>{
+ const row=e.target.closest('.call');
+ if(row&&row.querySelector('.call-detail')?.textContent?.startsWith('2026/'))markHidden('calls');
+});
+// 진엔딩 이후에 추가된 날짜의 일정을 눌러 확인해야 체크합니다.
+document.getElementById('calendar-grid').addEventListener('click',e=>{
+ if(!epilogueUnlocked()||!e.target.closest('.calendar-day'))return;
+ // 날짜 선택은 기존 이벤트 핸들러가 먼저 처리합니다.
+ queueMicrotask(()=>{if(afterDatingCalendar[calSelected])markHidden('calendar');});
+});
+// 이전에 모든 흔적을 찾은 독자는 새로고침 후에도 편지를 볼 수 있습니다.
+addHiddenLetter();
+
 </script>
 </body>
 </html>
