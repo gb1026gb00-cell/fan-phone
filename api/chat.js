@@ -1,9 +1,9 @@
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 
-const DAILY_VISITORS = 100;
+const DAILY_VISITORS = 250;
 const DAILY_MESSAGES_PER_VISITOR = 20;
-const DAILY_TOTAL_MESSAGES = 2000;
+const DAILY_TOTAL_MESSAGES = 5000;
 const ADMIN_DAILY_TESTS = 40;
 const FINAL_MESSAGE = '우영아 나 이제 가봐야 해. 내일 보자, 사랑해.';
 
