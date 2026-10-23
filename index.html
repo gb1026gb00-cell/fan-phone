@@ -22,6 +22,37 @@
 .viewer-nav{position:absolute;top:50%;transform:translateY(-50%);border:0;border-radius:50%;width:36px;height:36px;background:#202027c9;color:white;font-size:24px;z-index:2}
 .viewer-nav.prev{left:8px}.viewer-nav.next{right:8px}
 .viewer-bottom{text-align:center;color:#aaaab4;font-size:12px;padding:0 15px}
+
+/* 카카오톡 스타일 화면 */
+.kakao{background:#fff;color:#191919;padding:58px 0 70px;position:relative}
+.kakao [hidden]{display:none!important}
+.kakao-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 18px}
+.kakao-head h1{font-size:25px;margin:0;font-weight:750}
+.kakao-home{background:#f1f1f1;border:0;border-radius:10px;padding:9px 12px;color:#222}
+.kakao-content{padding:0 16px 10px;overflow-y:auto;height:calc(100% - 128px)}
+.kakao .card{background:#fff;border:0;border-bottom:1px solid #f0f0f0;border-radius:0;margin:0;padding:0}
+.kakao .conversation-row{color:#171717;padding:12px 4px}
+.kakao .muted{color:#929292}.kakao .pinned{color:#888}
+.kakao .avatar{background:#f1e4d4;color:#4c3a2a;border-radius:18px}
+.kakao .conversation-row:disabled{cursor:default}
+.kakao-tabs{position:absolute;bottom:0;left:0;right:0;height:65px;border-top:1px solid #ececec;background:#fafafa;display:flex;justify-content:space-around;align-items:center}
+.kakao-tabs button{background:none;border:0;color:#999;min-width:65px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:6px}
+.kakao-tabs button[aria-selected="true"]{color:#151515;font-weight:700}
+.kakao-tabs .tab-icon{font-size:23px;line-height:26px}
+.kakao-friend{display:flex;align-items:center;gap:12px;width:100%;padding:12px 4px;border:0;border-bottom:1px solid #f2f2f2;background:white;color:#222;text-align:left}
+.kakao-friend .avatar{width:44px;height:44px}.kakao-friend.own{padding:16px 4px 22px}.kakao-friend.own .avatar{width:57px;height:57px}
+.kakao-friend strong{display:block;font-size:15px}.kakao-friend small{color:#999;font-size:11px;display:block;margin-top:4px}
+.kakao-section{color:#8d8d8d;font-size:12px;padding:18px 4px 8px;border-top:1px solid #f1f1f1}
+.kakao-help{font-size:12px;color:#999;line-height:1.5;padding:15px 5px}
+.kakao-chat{background:#b2c7d9;padding:60px 12px 72px}
+.kakao-chat .chat-header{margin-bottom:4px;color:#1d252c}.kakao-chat .chat-header .back{background:#ffffff80;color:#222}
+.kakao-chat .chat-caption,.kakao-chat .ai-state{color:#42515d}
+.kakao-chat .bubble{background:white;color:#222;border-radius:13px}
+.kakao-chat .bubble.me{background:#fee500;color:#1a1a1a}
+.kakao-chat .composer{bottom:20px;left:10px;right:10px;background:#fff;border-radius:12px;padding:6px}
+.kakao-chat .composer input{background:white;color:#222;border:0}
+.kakao-chat .composer button{background:#fee500;color:#222;border-radius:10px}
+.kakao-chat .chat-day{color:#455666}
 </style>
 </head>
 <body>
@@ -30,23 +61,26 @@
 <section class="screen lock active" id="lock"><div id="date"></div><div class="lock-time" id="bigclock">9:41</div><div class="lock-bottom"><button class="unlock" onclick="show('pin')">위로 밀어 잠금 해제 ↑</button><p class="muted">버튼을 눌러 비밀번호를 입력하세요</p></div></section>
 <section class="screen pin" id="pin"><h2>암호 입력</h2><p class="muted">팬메이드 휴대폰</p><input id="password" type="password" inputmode="numeric" maxlength="4" placeholder="••••"><br><button class="primary" onclick="unlock()">잠금 해제</button><p class="error" id="pinerror"></p><button class="back" onclick="show('lock')">돌아가기</button></section>
 <section class="screen home" id="home"><h1>정우영의 iPhone</h1><p class="muted">Fanmade Phone · Dark Edition</p><div class="apps" id="apps"></div></section>
-<section class="screen panel" id="messages"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h1 style="margin:0">메시지</h1></div><div id="conversation-list"></div><p class="muted">정우영의 휴대폰에 저장된 팬메이드 가상 대화입니다. 최산 채팅방만 이용할 수 있어요.</p></section>
-<section class="screen panel" id="chat"><div class="toolbar chat-header"><button class="back" onclick="show('messages')">‹ 목록</button><span class="avatar">산</span><h2>최산</h2></div><p class="chat-caption">팬픽용 가상 대화 · 실제 인물의 메시지가 아닙니다</p><p class="ai-state" id="aiState">AI 연결 준비 완료</p><div class="chatlog" id="chatlog"><div class="chat-day">가상 AI 대화 · 새로운 대화를 시작해 보세요</div></div><form class="composer" id="chatForm"><input id="msg" placeholder="정우영으로 메시지 보내기" autocomplete="off" maxlength="1000"><button type="submit" id="sendBtn">↑</button></form></section>
+<section class="screen kakao" id="messages">
+ <div class="kakao-head"><h1 id="kakao-title">친구</h1><button class="kakao-home" onclick="show('home')">⌂ 홈</button></div>
+ <div class="kakao-content"><div id="kakao-friends"></div><div id="kakao-chats" hidden><div id="conversation-list"></div><p class="kakao-help">팬메이드 가상 채팅입니다. 최산 채팅방만 AI와 대화할 수 있어요.</p></div><div id="kakao-more" hidden><div class="kakao-section">정우영의 카카오톡</div><p class="kakao-help">팬메이드 휴대폰 · 실제 인물의 계정이나 메시지가 아닙니다.</p></div></div>
+ <nav class="kakao-tabs" aria-label="카카오톡 메뉴"><button type="button" data-kakao-tab="friends" aria-selected="true"><span class="tab-icon">♟</span>친구</button><button type="button" data-kakao-tab="chats" aria-selected="false"><span class="tab-icon">▤</span>채팅</button><button type="button" data-kakao-tab="more" aria-selected="false"><span class="tab-icon">•••</span>더보기</button></nav>
+ </section>
+<section class="screen panel kakao-chat" id="chat"><div class="toolbar chat-header"><button class="back" onclick="show('messages')">‹ 목록</button><span class="avatar">산</span><h2>최산</h2></div><p class="chat-caption">팬픽용 가상 대화 · 실제 인물의 메시지가 아닙니다</p><p class="ai-state" id="aiState">AI 연결 준비 완료</p><div class="chatlog" id="chatlog"><div class="chat-day">가상 AI 대화 · 새로운 대화를 시작해 보세요</div></div><form class="composer" id="chatForm"><input id="msg" placeholder="정우영으로 메시지 보내기" autocomplete="off" maxlength="1000"><button type="submit" id="sendBtn">↑</button></form></section>
 <section class="screen panel" id="calls"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>전화</h2></div><div class="section-heading"><h2>최근 통화</h2><span class="pill">8건</span></div><div id="call-list"></div></section>
 <section class="screen panel" id="notes"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>메모</h2></div><h2>모든 메모</h2><div id="note-list"></div></section>
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
 <section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">대화 기록 초기화</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
-<section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">메시지 앱의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">메시지로 이동</button></section>
+<section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
 <div class="homebar"></div>
 </main>
 <script>
 // 이미 정상 작동하던 Vercel API 주소를 유지합니다.
 const API='https://fan-phone.vercel.app/api/chat';
-// 정우영 사진: 현재 파일에서 확인되는 이미지 파일은 lockscreen.jpg뿐입니다.
-// 기존 사진이 우영이 프로필이라면 그대로 사용합니다. 별도 사진이면 아래 경로만 변경하세요.
-const WOOYOUNG_PROFILE='lockscreen.jpg';
+// 정우영 프로필 사진 (GitHub 저장소 루트의 wooyoung.jpg)
+const WOOYOUNG_PROFILE='wooyoung.jpg';
 const otherConversations=[
  {name:'박성화',preview:'우영아 잘 자, 내일 보자',when:'어제'},
  {name:'김홍중',preview:'내일 연습 시간 확인했지?',when:'어제'},
@@ -77,11 +111,31 @@ function conversationRow(name,preview,when,active=false){
 const conversationList=document.getElementById('conversation-list');
 conversationList.appendChild(conversationRow('최산','지금 가도 돼?','오늘',true));
 for(const c of otherConversations)conversationList.appendChild(conversationRow(c.name,c.preview,c.when));
+// 카카오톡 친구 / 채팅 / 더보기 탭
+const friendArea=document.getElementById('kakao-friends');
+function friendRow(name,mine=false){
+ const row=document.createElement('div');row.className='kakao-friend'+(mine?' own':'');
+ const picture=avatar(name,mine);
+ const info=document.createElement('div');
+ const title=document.createElement('strong');title.textContent=name;
+ const caption=document.createElement('small');caption.textContent=mine?'오늘도 좋은 하루!':'에이티즈';
+ info.append(title,caption);row.append(picture,info);return row;
+}
+friendArea.appendChild(friendRow('정우영',true));
+const friendLabel=document.createElement('div');friendLabel.className='kakao-section';friendLabel.textContent='친구 7';friendArea.appendChild(friendLabel);
+for(const name of ['최산',...otherConversations.map(c=>c.name)])friendArea.appendChild(friendRow(name));
+function kakaoTab(tab){
+ const names={friends:'친구',chats:'채팅',more:'더보기'};
+ document.getElementById('kakao-title').textContent=names[tab];
+ for(const name of Object.keys(names))document.getElementById('kakao-'+name).hidden=name!==tab;
+ document.querySelectorAll('[data-kakao-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.kakaoTab===tab)));
+}
+document.querySelectorAll('[data-kakao-tab]').forEach(b=>b.addEventListener('click',()=>kakaoTab(b.dataset.kakaoTab)));
 const screens=[...document.querySelectorAll('.screen')];
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();}
 function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home');}
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
-const apps=[['✉','메시지','messages'],['▧','사진','photos'],['▤','메모','notes'],['☎','전화','calls'],['⚙','설정','settings'],['✦','AI 채팅','ai']];
+const apps=[['💬','카카오톡','messages'],['▧','사진','photos'],['▤','메모','notes'],['☎','전화','calls'],['⚙','설정','settings'],['✦','AI 채팅','ai']];
 const appsEl=document.getElementById('apps');
 for(const [symbol,label,id] of apps){const btn=document.createElement('button');btn.className='app';const icon=document.createElement('span');icon.className='app-icon';icon.textContent=symbol;const text=document.createElement('span');text.textContent=label;btn.append(icon,text);btn.onclick=()=>show(id);appsEl.appendChild(btn);}
 // 전화 기록: 부재중 3회, 발신 1시간 2회, 발신 30분 3회.
