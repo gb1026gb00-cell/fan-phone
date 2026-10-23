@@ -53,6 +53,16 @@
 .kakao-chat .composer input{background:white;color:#222;border:0}
 .kakao-chat .composer button{background:#fee500;color:#222;border-radius:10px}
 .kakao-chat .chat-day{color:#455666}
+/* 읽기 전용 멤버 채팅방 */
+.readonly-chat{background:#b2c7d9;padding:60px 12px 45px;display:none;flex-direction:column;overflow:hidden}
+.readonly-chat.active{display:flex}
+.readonly-chat .toolbar{margin-bottom:6px;color:#1d252c}
+.readonly-chat .back{background:#ffffff80;color:#222}
+.readonly-chat .chatlog{height:auto;flex:1;min-height:0;overflow-y:auto;padding:14px 0 24px}
+.readonly-chat .bubble{background:#fff;color:#222;border-radius:13px}
+.readonly-chat .bubble.me{background:#fee500;color:#222}
+.readonly-chat .chat-day{color:#455666}
+.readonly-chat .read-only-label{text-align:center;color:#465768;font-size:12px;padding:8px;background:#ffffff70;border-radius:10px}
 </style>
 </head>
 <body>
@@ -67,6 +77,12 @@
  <nav class="kakao-tabs" aria-label="카카오톡 메뉴"><button type="button" data-kakao-tab="friends" aria-selected="true"><span class="tab-icon">♟</span>친구</button><button type="button" data-kakao-tab="chats" aria-selected="false"><span class="tab-icon">▤</span>채팅</button><button type="button" data-kakao-tab="more" aria-selected="false"><span class="tab-icon">•••</span>더보기</button></nav>
  </section>
 <section class="screen panel kakao-chat" id="chat"><div class="toolbar chat-header"><button class="back" onclick="show('messages')">‹ 목록</button><span class="avatar">산</span><h2>최산</h2></div><p class="chat-caption">팬픽용 가상 대화 · 실제 인물의 메시지가 아닙니다</p><p class="ai-state" id="aiState">AI 연결 준비 완료</p><div class="chatlog" id="chatlog"><div class="chat-day">가상 AI 대화 · 새로운 대화를 시작해 보세요</div></div><form class="composer" id="chatForm"><input id="msg" placeholder="정우영으로 메시지 보내기" autocomplete="off" maxlength="1000"><button type="submit" id="sendBtn">↑</button></form></section>
+<section class="screen readonly-chat" id="member-chat">
+ <div class="toolbar"><button class="back" onclick="backToChats()">‹ 채팅</button><h2 id="member-chat-title" style="margin:0;font-size:17px">멤버</h2></div>
+ <p class="chat-caption" style="color:#455666">팬메이드로 작성된 가상 대화 · 실제 메시지가 아닙니다</p>
+ <div class="chatlog" id="member-chatlog"></div>
+ <div class="read-only-label">🔒 지난 대화 보기 전용 · 메시지를 보낼 수 없어요</div>
+</section>
 <section class="screen panel" id="calls"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>전화</h2></div><div class="section-heading"><h2>최근 통화</h2><span class="pill">8건</span></div><div id="call-list"></div></section>
 <section class="screen panel" id="notes"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>메모</h2></div><h2>모든 메모</h2><div id="note-list"></div></section>
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
@@ -81,14 +97,28 @@
 const API='https://fan-phone.vercel.app/api/chat';
 // 정우영 프로필 사진 (GitHub 저장소 루트의 wooyoung.jpg)
 const WOOYOUNG_PROFILE='wooyoung.jpg';
+// 대화는 모두 팬픽용으로 작성된 가상 메시지입니다. mine=true는 정우영의 말입니다.
 const otherConversations=[
- {name:'박성화',preview:'우영아 잘 자, 내일 보자',when:'어제'},
- {name:'김홍중',preview:'내일 연습 시간 확인했지?',when:'어제'},
- {name:'정윤호',preview:'ㅋㅋㅋㅋ 다음에 같이 가자',when:'수요일'},
- {name:'강여상',preview:'알겠어 ㅋㅋㅋ',when:'화요일'},
- {name:'송민기',preview:'뭐하냐 ㅋㅋㅋㅋ',when:'월요일'},
- {name:'최종호',preview:'형 나중에 연락할게요',when:'일요일'}
+ {name:'박성화',when:'어제',lines:[
+  [false,'우영아 너 충전기 내 방에 두고 갔어'],[true,'아 ㅋㅋㅋㅋㅋㅋㅋ'],[true,'형 내일 갖다줘'],[false,'왜 내가 갖다줘야 되는데'],[true,'형은 천사잖아 🥺'],[false,'이럴 때만 천사래'],[true,'사랑해 성화형'],[false,'알았어 내일 줄게'],[false,'우영아 잘 자, 내일 보자']
+ ]},
+ {name:'김홍중',when:'어제',lines:[
+  [false,'우영아 내일 연습 시간 바뀐 거 봤어?'],[true,'네 형 ㅋㅋㅋ'],[false,'몇 시인데'],[true,'어...'],[false,'ㅋㅋㅋㅋㅋㅋㅋㅋ'],[true,'지금 확인할게요 잠시만'],[false,'단톡에 공지 올렸잖아'],[true,'봤어요 이제 진짜 봤어요'],[false,'내일 연습 시간 확인했지?']
+ ]},
+ {name:'정윤호',when:'수요일',lines:[
+  [true,'윤호형'],[true,'오늘 끝나고 뭐해'],[false,'왜?'],[true,'맛있는 거 먹자'],[false,'너 어제도 맛있는 거 먹자고 했잖아 ㅋㅋ'],[true,'어제의 나랑 오늘의 나는 달라'],[false,'ㅋㅋㅋㅋㅋ 말은 잘해'],[true,'가자아아'],[false,'ㅋㅋㅋㅋ 다음에 같이 가자']
+ ]},
+ {name:'강여상',when:'화요일',lines:[
+  [true,'여상아'],[true,'나 진지하게 물어볼 게 있음'],[false,'뭔데'],[true,'나 오늘 좀 잘생기지 않았냐'],[false,'아니'],[true,'야'],[false,'진지하게 물어본다며'],[true,'너랑 말 안 해'],[false,'알겠어 ㅋㅋㅋ']
+ ]},
+ {name:'송민기',when:'월요일',lines:[
+  [false,'야'],[false,'우영아'],[false,'정우영'],[true,'왜왜왜왜'],[false,'너 내 과자 먹었냐'],[true,'무슨 과자'],[false,'내 책상 위에 있던 거'],[true,'아 그거 니 거였어?'],[false,'ㅋㅋㅋㅋㅋㅋㅋㅋ'],[true,'미안 하나 사줄게'],[false,'뭐하냐 ㅋㅋㅋㅋ']
+ ]},
+ {name:'최종호',when:'일요일',lines:[
+  [true,'종호야'],[true,'형이 부탁 하나만 해도 되냐'],[false,'뭔데요 형'],[true,'편의점 가는 길이면 아이스크림 하나만'],[false,'저 지금 숙소 아닌데요'],[true,'그럼 돌아오는 길에 ㅎㅎ'],[false,'ㅋㅋㅋㅋ 무슨 맛이요'],[true,'초코!!!'],[false,'형 나중에 연락할게요']
+ ]}
 ];
+for(const c of otherConversations)c.preview=c.lines.at(-1)[1];
 function avatar(name,mine=false){
  const el=document.createElement('span');el.className='avatar'+(mine?' mine':' other');
  if(mine){const img=document.createElement('img');img.src=WOOYOUNG_PROFILE;img.alt='정우영 프로필';img.onerror=()=>{img.remove();el.textContent='우';};el.appendChild(img);}
@@ -98,7 +128,7 @@ function avatar(name,mine=false){
 function conversationRow(name,preview,when,active=false){
  const card=document.createElement('div');card.className='card conversation-card';
  const btn=document.createElement('button');btn.className='conversation-row';btn.type='button';
- btn.disabled=!active;if(active)btn.onclick=()=>show('chat');
+ btn.onclick=()=>active?show('chat'):openMemberChat(name);
  const pic=avatar(name),info=document.createElement('span');info.className='conversation-text';
  const title=document.createElement('strong');title.textContent=name;
  const sub=document.createElement('span');sub.className='muted preview-line';sub.textContent=preview;
@@ -111,6 +141,20 @@ function conversationRow(name,preview,when,active=false){
 const conversationList=document.getElementById('conversation-list');
 conversationList.appendChild(conversationRow('최산','지금 가도 돼?','오늘',true));
 for(const c of otherConversations)conversationList.appendChild(conversationRow(c.name,c.preview,c.when));
+function backToChats(){kakaoTab('chats');show('messages');}
+function openMemberChat(name){
+ const c=otherConversations.find(item=>item.name===name);if(!c)return;
+ document.getElementById('member-chat-title').textContent=name;
+ const area=document.getElementById('member-chatlog');area.replaceChildren();
+ const day=document.createElement('div');day.className='chat-day';day.textContent='지난 대화 · '+c.when;area.appendChild(day);
+ for(const [mine,message] of c.lines){
+  const row=document.createElement('div');row.className='chat-message'+(mine?' me':'');
+  const bubble=document.createElement('div');bubble.className='bubble'+(mine?' me':'');bubble.textContent=message;
+  if(mine)row.append(bubble,avatar('정우영',true));else row.append(avatar(name),bubble);
+  area.appendChild(row);
+ }
+ show('member-chat');area.scrollTop=area.scrollHeight;
+}
 // 카카오톡 친구 / 채팅 / 더보기 탭
 const friendArea=document.getElementById('kakao-friends');
 function friendRow(name,mine=false){
