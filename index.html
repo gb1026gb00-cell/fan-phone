@@ -63,12 +63,27 @@
 .readonly-chat .bubble.me{background:#fee500;color:#222}
 .readonly-chat .chat-day{color:#455666}
 .readonly-chat .read-only-label{text-align:center;color:#465768;font-size:12px;padding:8px;background:#ffffff70;border-radius:10px}
+/* 새 기능: 잠금 알림, 사파리, 캘린더 */
+.lock-notifications{position:absolute;top:285px;left:17px;right:17px;text-align:left;display:grid;gap:9px}
+.lock-notification{width:100%;border:1px solid #ffffff35;background:#e9edf3ba;backdrop-filter:blur(15px);color:#1b2632;border-radius:16px;padding:12px 14px;text-align:left}
+.lock-notification strong{display:block;font-size:12px;margin-bottom:4px}.lock-notification span{font-size:13px}
+.browser-search{background:#25252b;color:#e8e8ef;border-radius:13px;padding:13px;margin:12px 0 20px;font-size:14px}
+.browser-entry{padding:14px 5px;border-bottom:1px solid #303038;display:flex;align-items:center;gap:12px;font-size:14px}
+.browser-entry span{color:#b0b0bc}.browser-entry strong{font-weight:500}
+.calendar-nav{display:flex;justify-content:space-between;align-items:center;margin:12px 0 20px}
+.calendar-nav button{background:#2c2c35;color:#fff;border:0;border-radius:10px;padding:9px 15px}
+.calendar-week,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;text-align:center}
+.calendar-week{font-size:11px;color:#a3a3ae;margin-bottom:8px}
+.calendar-day{aspect-ratio:1;border:0;border-radius:12px;background:#222229;color:#fff;position:relative;font-size:14px}
+.calendar-day:disabled{opacity:.2}.calendar-day.has-event{background:#544437}.calendar-day.selected{outline:2px solid #ffd35d;background:#665332}
+.calendar-dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);height:4px;width:4px;border-radius:50%;background:#ffd35d}
+.calendar-detail{margin-top:20px;min-height:95px;line-height:1.7}
 </style>
 </head>
 <body>
 <main class="phone">
 <div class="island"></div><div class="status"><span id="clock">9:41</span><span>● ◉ ▰</span></div>
-<section class="screen lock active" id="lock"><div id="date"></div><div class="lock-time" id="bigclock">9:41</div><div class="lock-bottom"><button class="unlock" onclick="show('pin')">위로 밀어 잠금 해제 ↑</button><p class="muted">버튼을 눌러 비밀번호를 입력하세요</p></div></section>
+<section class="screen lock active" id="lock"><div id="date"></div><div class="lock-time" id="bigclock">9:41</div><div class="lock-notifications"><button type="button" class="lock-notification" onclick="show('pin')"><strong>💬 카카오톡 · 최산 <small style="float:right">오후 11:42</small></strong><span>우영아 자?</span></button><button type="button" class="lock-notification" onclick="show('pin')"><strong>💬 카카오톡 · 최산 <small style="float:right">오후 11:43</small></strong><span>아 아니다 내일 얘기해 ㅋㅋ</span></button></div><div class="lock-bottom"><button class="unlock" onclick="show('pin')">위로 밀어 잠금 해제 ↑</button><p class="muted">버튼을 눌러 비밀번호를 입력하세요</p></div></section>
 <section class="screen pin" id="pin"><h2>암호 입력</h2><p class="muted">팬메이드 휴대폰</p><input id="password" type="password" inputmode="numeric" maxlength="4" placeholder="••••"><br><button class="primary" onclick="unlock()">잠금 해제</button><p class="error" id="pinerror"></p><button class="back" onclick="show('lock')">돌아가기</button></section>
 <section class="screen home" id="home"><h1>정우영의 iPhone</h1><p class="muted">Fanmade Phone · Dark Edition</p><div class="apps" id="apps"></div></section>
 <section class="screen kakao" id="messages">
@@ -85,10 +100,12 @@
 </section>
 <section class="screen panel" id="calls"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>전화</h2></div><div class="section-heading"><h2>최근 통화</h2><span class="pill">8건</span></div><div id="call-list"></div></section>
 <section class="screen panel" id="notes"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>메모</h2></div><h2>모든 메모</h2><div id="note-list"></div></section>
+<section class="screen panel" id="safari"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>Safari</h2></div><div class="browser-search">🔍 최근 검색 기록</div><div id="safari-history"></div><p class="muted" style="margin-top:25px">팬메이드 가상 검색 기록 · 읽기 전용</p></section>
+<section class="screen panel" id="calendar"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>캘린더</h2></div><div class="calendar-nav"><button id="cal-prev" type="button">‹</button><strong id="calendar-month">2026년 10월</strong><button id="cal-next" type="button">›</button></div><div class="calendar-week"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div><div class="calendar-grid" id="calendar-grid"></div><div class="card calendar-detail" id="calendar-detail">날짜를 눌러 일정을 확인하세요.</div></section>
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
-<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">대화 기록 초기화</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
+<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
 <div class="homebar"></div>
 </main>
@@ -179,7 +196,7 @@ const screens=[...document.querySelectorAll('.screen')];
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();}
 function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home');}
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
-const apps=[['💬','카카오톡','messages'],['▧','사진','photos'],['▤','메모','notes'],['☎','전화','calls'],['⚙','설정','settings'],['✦','AI 채팅','ai']];
+const apps=[['💬','카카오톡','messages'],['▧','사진','photos'],['▤','메모','notes'],['☎','전화','calls'],['🌐','Safari','safari'],['📅','캘린더','calendar'],['⚙','설정','settings'],['✦','AI 채팅','ai']];
 const appsEl=document.getElementById('apps');
 for(const [symbol,label,id] of apps){const btn=document.createElement('button');btn.className='app';const icon=document.createElement('span');icon.className='app-icon';icon.textContent=symbol;const text=document.createElement('span');text.textContent=label;btn.append(icon,text);btn.onclick=()=>show(id);appsEl.appendChild(btn);}
 // 전화 기록: 부재중 3회, 발신 1시간 2회, 발신 30분 3회.
@@ -200,7 +217,8 @@ for(const c of calls){const row=document.createElement('div');row.className='cal
 const notes=[
   {title:'10/24 산이랑 치이카와 보기!',body:'10/24 산이랑 치이카와 보기!'},
   {title:'10/26 산이랑 닭갈비 먹기!',body:'10/26 산이랑 닭갈비 먹기!'},
-  {title:'언제 고백하지...',body:'언제 고백하지...\n산이도 나 좋아하는 거 맞겠지?'}
+  {title:'언제 고백하지...',body:'언제 고백하지...\n산이도 나 좋아하는 거 맞겠지?'},
+   {title:'절대 보여주지 말 것 🔒',body:'산아 나 너 좋아해.\n\n아니 너무 갑작스럽나?\n산아 우리 둘이 영화 볼래?\n아 이것도 이상한데...\n\n근데 너랑 있으면 진짜 좋아.\n이건 언젠가 꼭 말해야지.\n\n...언제 고백하지?'}
 ];
 const noteList=document.getElementById('note-list');
 notes.forEach((note,i)=>{const btn=document.createElement('button');btn.className='note-item';const title=document.createElement('span');title.className='note-title';title.textContent=note.title;const preview=document.createElement('span');preview.className='note-preview';preview.textContent=note.body.replace(/\n/g,' ');btn.append(title,preview);btn.onclick=()=>{document.getElementById('note-detail-title').textContent=note.title;document.getElementById('note-detail-body').textContent=note.body;show('note-detail');};noteList.appendChild(btn);});
@@ -240,8 +258,40 @@ viewerStage.addEventListener('touchend',e=>{
  swipeStart=null;
 },{passive:true});
 
+// 사파리: 팬메이드 검색 기록 (외부 검색 전송 없음)
+const searches=['친구가 나 좋아하는지 확인하는 법','남자끼리 단둘이 영화 보면 데이트인가요','고백 성공 확률 높이는 법','최산 이상형','친구랑 눈 마주치면 웃는 이유','짝사랑 티 안 내는 법','고백할 때 꽃 줘도 되나요'];
+const safariHistory=document.getElementById('safari-history');
+searches.forEach(q=>{const row=document.createElement('div');row.className='browser-entry';const ico=document.createElement('span');ico.textContent='◷';const name=document.createElement('strong');name.textContent=q;row.append(ico,name);safariHistory.appendChild(row);});
+// 캘린더: 2026년 10월 약속과 고백 고민
+const calendarEvents={'2026-10-24':['🍿 산이랑 치이카와 보기!'],'2026-10-26':['🍗 산이랑 닭갈비 먹기!'],'2026-10-31':['💌 고백... 할까?']};
+let calYear=2026,calMonth=9,calSelected='2026-10-24';
+const pad2=n=>String(n).padStart(2,'0');
+function calendarKey(day){return `${calYear}-${pad2(calMonth+1)}-${pad2(day)}`;}
+function renderCalendar(){
+ document.getElementById('calendar-month').textContent=`${calYear}년 ${calMonth+1}월`;
+ const grid=document.getElementById('calendar-grid');grid.replaceChildren();
+ const start=new Date(calYear,calMonth,1).getDay(),days=new Date(calYear,calMonth+1,0).getDate();
+ for(let i=0;i<start;i++){const blank=document.createElement('span');grid.appendChild(blank);}
+ for(let day=1;day<=days;day++){
+  const key=calendarKey(day),btn=document.createElement('button');btn.type='button';btn.className='calendar-day'+(calendarEvents[key]?' has-event':'')+(key===calSelected?' selected':'');btn.textContent=day;
+  if(calendarEvents[key]){const dot=document.createElement('span');dot.className='calendar-dot';btn.appendChild(dot);}
+  btn.onclick=()=>{calSelected=key;renderCalendar();};grid.appendChild(btn);
+ }
+ const detail=document.getElementById('calendar-detail');detail.replaceChildren();
+ const date=document.createElement('strong');date.textContent=calSelected.replaceAll('-','.');detail.appendChild(date);
+ const entries=calendarEvents[calSelected]||['등록된 일정이 없어요.'];
+ entries.forEach(entry=>{const line=document.createElement('div');line.textContent=entry;detail.appendChild(line);});
+}
+function changeCalendar(step){calMonth+=step;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}calSelected=calendarKey(1);renderCalendar();}
+document.getElementById('cal-prev').onclick=()=>changeCalendar(-1);
+document.getElementById('cal-next').onclick=()=>changeCalendar(1);
+renderCalendar();
 // AI 채팅: 기존에 확인된 POST 방식과 messages 배열 유지
-let history=[],busy=false;
+// 로컬 브라우저에만 저장합니다. 다른 기기/방문자와 공유되지 않습니다.
+const CHAT_STORAGE_KEY='fan-phone-san-chat-v1';
+function loadHistory(){try{const value=JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY)||'[]');return Array.isArray(value)?value.filter(x=>x&&['user','assistant'].includes(x.role)&&typeof x.content==='string').slice(-100):[];}catch{return [];}}
+function saveHistory(){try{localStorage.setItem(CHAT_STORAGE_KEY,JSON.stringify(history.slice(-100)));}catch{state.textContent='이 브라우저에서는 채팅 저장이 제한돼요.';}}
+let history=loadHistory(),busy=false;
 const state=document.getElementById('aiState'),log=document.getElementById('chatlog'),input=document.getElementById('msg'),send=document.getElementById('sendBtn');
 function addBubble(t,mine,pending=false){
  const row=document.createElement('div');row.className='chat-message'+(mine?' me':'');
@@ -249,20 +299,22 @@ function addBubble(t,mine,pending=false){
  if(mine){row.append(d,avatar('정우영',true));}else{row.append(avatar('최산'),d);}
  log.appendChild(row);log.scrollTop=log.scrollHeight;return d;
 }
-document.getElementById('resetChat').onclick=()=>{history=[];log.replaceChildren();addBubble('새로운 대화를 시작해 보세요.',false);state.textContent='대화 기록을 초기화했어요.';document.getElementById('last-preview').textContent='대화 시작하기';};
+document.getElementById('resetChat').onclick=()=>{if(!confirm('이 브라우저에 저장된 최산 채팅 기록을 모두 지울까요?'))return;history=[];try{localStorage.removeItem(CHAT_STORAGE_KEY);}catch{};log.replaceChildren();addBubble('새로운 대화를 시작해 보세요.',false);state.textContent='대화 기록을 초기화했어요.';document.getElementById('last-preview').textContent='대화 시작하기';};
 document.getElementById('chatForm').addEventListener('submit',async e=>{
  e.preventDefault();if(busy)return;const message=input.value.trim();if(!message)return;
- addBubble(message,true);input.value='';history.push({role:'user',content:message});document.getElementById('last-preview').textContent=message;
+ addBubble(message,true);input.value='';history.push({role:'user',content:message});saveHistory();document.getElementById('last-preview').textContent=message;
  busy=true;send.disabled=true;state.textContent='최산이 답장을 쓰고 있어요…';const waiting=addBubble('입력 중…',false,true);
  try{
   const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)}),signal:AbortSignal.timeout(30000)});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
   if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
-  waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});document.getElementById('last-preview').textContent=data.reply.trim();state.textContent='AI가 생성한 가상 대화입니다.';
- }catch(err){waiting.parentElement.remove();history.pop();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
+  waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});saveHistory();document.getElementById('last-preview').textContent=data.reply.trim();state.textContent='AI가 생성한 가상 대화입니다.';
+ }catch(err){waiting.parentElement.remove();history.pop();saveHistory();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
  finally{busy=false;send.disabled=false;input.focus();}
 });
+// 새로고침 후에도 이 브라우저에서 이전 대화 확인 가능
+if(history.length){log.replaceChildren();history.forEach(item=>addBubble(item.content,item.role==='user'));document.getElementById('last-preview').textContent=history.at(-1).content;state.textContent='이 기기에 저장된 대화를 불러왔어요.';}
 function time(){const n=new Date(),t=n.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit',hour12:false});document.getElementById('clock').textContent=t;document.getElementById('bigclock').textContent=t;document.getElementById('date').textContent=n.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
 time();setInterval(time,30000);
 </script>
