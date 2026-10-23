@@ -235,7 +235,7 @@ export default async function handler(req, res) {
 
   // 관리자 테스트 모드 인증 및 오류 진단
   const providedKey = req.headers['x-admin-test-key'];
-  const configuredKey = process.env.ADMIN_TEST_KEY;
+  const configuredKey = process.env.FAN_ADMIN_TEST_KEY_V2;
 
   let isAdmin = false;
 
