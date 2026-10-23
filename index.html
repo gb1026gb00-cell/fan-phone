@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Fan Phone · 정우영</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101014;color:#f7f7f8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100dvh;display:grid;place-items:center;padding:12px}button,input{font:inherit}button{cursor:pointer}.phone{width:min(390px,100%);height:min(820px,calc(100dvh - 24px));min-height:520px;background:#08080a;border:7px solid #33343a;border-radius:48px;position:relative;overflow:hidden;box-shadow:0 20px 70px #0009}.island{position:absolute;z-index:10;top:10px;left:50%;transform:translateX(-50%);width:112px;height:29px;background:#020204;border-radius:22px}.status{position:absolute;top:15px;left:0;right:0;display:flex;justify-content:space-between;padding:0 28px;font-size:13px;font-weight:700;z-index:9}.screen{height:100%;display:none;overflow:auto}.screen.active{display:block}.lock{background:linear-gradient(155deg,#10131f99,#050507bb),url("lockscreen.jpg") center/cover,linear-gradient(145deg,#242734,#060609);text-align:center;padding:98px 20px 30px}.lock-time{font-size:76px;font-weight:200;letter-spacing:-5px;margin:5px 0 30px}.lock-bottom{position:absolute;bottom:45px;left:0;right:0}.unlock{background:#ffffff25;border:1px solid #ffffff44;color:white;border-radius:24px;padding:13px 24px}.muted{color:#aaaab4;font-size:12px}.pin{text-align:center;padding:110px 25px 20px;background:#111115}.pin input{width:180px;background:#26262c;color:white;border:1px solid #5a5a64;border-radius:14px;text-align:center;letter-spacing:10px;padding:13px;font-size:24px}.primary{background:#eee;color:#151515;border:0;border-radius:14px;padding:13px 22px;margin-top:18px}.error{color:#ff9d9d;min-height:22px}.home{background:linear-gradient(155deg,#292b32,#0b0b0e 65%);padding:86px 23px 25px}.home h1{font-size:23px}.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 12px;margin-top:30px}.app{border:0;background:none;color:#eee;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px}.app-icon{width:59px;height:59px;border:1px solid #55555d;border-radius:17px;background:linear-gradient(145deg,#28282e,#151519);display:grid;place-items:center;font-size:25px}.panel{background:#0e0e11;padding:62px 18px 28px}.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px}.back{border:0;background:#24242a;color:white;border-radius:12px;padding:9px 12px}.card{background:#202025;border:1px solid #33333b;border-radius:18px;padding:15px;margin-bottom:12px}.avatar{width:48px;height:48px;border-radius:50%;background:#34343c;display:grid;place-items:center;font-weight:600}.conversation-row{width:100%;display:flex;gap:12px;align-items:center;background:none;color:white;border:0;text-align:left}.conversation-text{flex:1;text-align:left}.chat-header{justify-content:center;position:relative;flex-direction:column;gap:5px;margin-bottom:12px}.chat-header .back{position:absolute;left:0;top:9px}.chat-header h2{font-size:15px;margin:0}.chat-header .avatar{width:40px;height:40px}.chat-caption{font-size:10px;color:#aaa;text-align:center}.ai-state{font-size:11px;text-align:center;color:#bdbdc8;margin:10px 0}.chatlog{height:calc(100% - 210px);overflow:auto;display:flex;flex-direction:column;gap:9px;padding:12px 0}.chat-day{text-align:center;color:#aaa;font-size:11px;margin:12px 0}.bubble{padding:11px 14px;border-radius:17px;max-width:83%;font-size:14px;line-height:1.5;background:#29292f;align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.me{align-self:flex-end;background:#2675e8;color:white}.pending{opacity:.6}.composer{display:flex;gap:8px;position:absolute;bottom:24px;left:18px;right:18px}.composer input{min-width:0;flex:1;background:#25252c;border:1px solid #474750;color:white;border-radius:20px;padding:12px}.composer button{border:0;border-radius:50%;width:42px;background:#e8e8ed;color:#16161a}.composer button:disabled{opacity:.4}.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.placeholder{background:#282830;border-radius:14px;padding:40px 10px;text-align:center}.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);height:5px;width:120px;border-radius:10px;background:#ddd;opacity:.65}
+*{box-sizing:border-box}body{margin:0;background:#101014;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;min-height:100dvh;padding:12px}button,input{font:inherit}button{cursor:pointer}.phone{width:min(390px,100%);height:min(820px,calc(100dvh - 24px));min-height:520px;background:#08080a;border:7px solid #33343a;border-radius:48px;position:relative;overflow:hidden;box-shadow:0 20px 60px #0008}.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:112px;height:29px;border-radius:22px;background:#020204;z-index:10}.status{position:absolute;top:15px;left:0;right:0;padding:0 28px;display:flex;justify-content:space-between;font-size:13px;font-weight:bold;z-index:9}.screen{height:100%;display:none;overflow:auto}.screen.active{display:block}.lock{background:linear-gradient(#10131f99,#050507bb),url('lockscreen.jpg') center/cover,#14141b;text-align:center;padding:100px 20px}.lock-time{font-size:76px;font-weight:200;margin:5px 0}.lock-bottom{position:absolute;bottom:45px;left:0;right:0}.unlock{background:#ffffff25;border:1px solid #ffffff44;color:white;border-radius:24px;padding:13px 24px}.muted{font-size:12px;color:#aaaab4}.pin{text-align:center;background:#111115;padding:110px 25px}.pin input{width:180px;background:#26262c;color:white;border:1px solid #555;border-radius:14px;text-align:center;letter-spacing:10px;padding:13px;font-size:24px}.primary{background:#eee;color:#111;border:0;border-radius:14px;padding:13px 22px;margin-top:18px}.error{color:#ff9d9d;min-height:22px}.home{background:linear-gradient(155deg,#292b32,#0b0b0e 65%);padding:86px 23px}.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 12px;margin-top:30px}.app{border:0;background:none;color:#eee;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px}.app-icon{width:59px;height:59px;border:1px solid #555;border-radius:17px;background:#24242b;display:grid;place-items:center;font-size:25px}.panel{background:#0e0e11;padding:62px 18px 28px}.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px}.back{border:0;background:#24242a;color:white;border-radius:12px;padding:9px 12px}.card{background:#202025;border:1px solid #333;border-radius:18px;padding:15px;margin-bottom:12px}.avatar{width:48px;height:48px;border-radius:50%;background:#34343c;display:grid;place-items:center;font-weight:bold}.conversation-row{width:100%;display:flex;gap:12px;align-items:center;background:none;color:white;border:0;text-align:left}.conversation-text{flex:1}.chat-header{justify-content:center;position:relative;flex-direction:column;gap:5px;margin-bottom:12px}.chat-header .back{position:absolute;left:0;top:9px}.chat-header h2{font-size:15px;margin:0}.chat-header .avatar{width:40px;height:40px}.chat-caption{font-size:10px;color:#aaa;text-align:center}.ai-state{font-size:11px;text-align:center;color:#bdbdc8;margin:10px 0}.chatlog{height:calc(100% - 210px);overflow:auto;display:flex;flex-direction:column;gap:9px;padding:12px 0}.chat-day{text-align:center;color:#aaa;font-size:11px;margin:12px 0}.bubble{padding:11px 14px;border-radius:17px;max-width:83%;font-size:14px;line-height:1.5;background:#29292f;align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.me{align-self:flex-end;background:#2675e8;color:white}.pending{opacity:.6}.composer{display:flex;gap:8px;position:absolute;bottom:24px;left:18px;right:18px}.composer input{min-width:0;flex:1;background:#25252c;border:1px solid #474750;color:white;border-radius:20px;padding:12px}.composer button{border:0;border-radius:50%;width:42px;background:#e8e8ed;color:#16161a}.composer button:disabled{opacity:.4}.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);height:5px;width:120px;border-radius:10px;background:#ddd;opacity:.65}.call{display:flex;align-items:center;gap:10px;border-bottom:1px solid #34343a;padding:14px 4px}.call-main{flex:1}.call-name{font-size:16px;font-weight:600}.call.missed .call-name{color:#ff5a63}.call-detail{font-size:12px;color:#aaaab4;margin-top:4px}.call-time{font-size:12px;color:#aaaab4}.call-info{color:#58a6ff;font-size:19px}.note-item{width:100%;display:block;text-align:left;color:white;border:0;background:#25252a;border-radius:14px;padding:16px;margin-bottom:10px}.note-title{display:block;font-weight:650;font-size:15px}.note-preview{display:block;color:#a9a9b3;font-size:12px;margin-top:7px}.note-content{white-space:pre-wrap;line-height:1.8;font-size:17px;margin-top:28px}.photo-empty{border:1px dashed #555;border-radius:18px;padding:55px 20px;text-align:center;color:#aaa;margin-top:25px}.pill{font-size:12px;background:#34343b;padding:6px 10px;border-radius:14px}.section-heading{display:flex;align-items:center;justify-content:space-between}
 </style>
 </head>
 <body>
@@ -16,46 +16,65 @@
 <section class="screen home" id="home"><h1>정우영의 iPhone</h1><p class="muted">Fanmade Phone · Dark Edition</p><div class="apps" id="apps"></div></section>
 <section class="screen panel" id="messages"><h1>메시지</h1><div class="card"><button class="conversation-row" onclick="show('chat')"><span class="avatar">산</span><span class="conversation-text"><strong>최산</strong><br><span class="muted" id="last-preview">지금 가도 돼?</span></span><span class="muted">오늘 ›</span></button></div><p class="muted">정우영의 휴대폰에 저장된 가상의 대화입니다.</p></section>
 <section class="screen panel" id="chat"><div class="toolbar chat-header"><button class="back" onclick="show('messages')">‹ 목록</button><span class="avatar">산</span><h2>최산</h2></div><p class="chat-caption">팬픽용 가상 대화 · 실제 인물의 메시지가 아닙니다</p><p class="ai-state" id="aiState">AI 연결 준비 완료</p><div class="chatlog" id="chatlog"><div class="chat-day">가상 AI 대화 · 새로운 대화를 시작해 보세요</div></div><form class="composer" id="chatForm"><input id="msg" placeholder="정우영으로 메시지 보내기" autocomplete="off" maxlength="1000"><button type="submit" id="sendBtn">↑</button></form></section>
-<section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><div class="photo-grid"><div class="placeholder">사진 추가 예정</div><div class="placeholder">추억 앨범</div></div></section>
-<section class="screen panel" id="notes"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>메모</h2></div><div class="card">오늘의 기록<br>팬픽 속 비밀 메모를 넣어 보세요.</div></section>
-<section class="screen panel" id="calls"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>최근 통화</h2></div><div class="card">부재중 전화 없음</div></section>
-<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 <span style="float:right">켜짐</span></div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">대화 기록 초기화</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
+<section class="screen panel" id="calls"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>전화</h2></div><div class="section-heading"><h2>최근 통화</h2><span class="pill">8건</span></div><div id="call-list"></div></section>
+<section class="screen panel" id="notes"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>메모</h2></div><h2>모든 메모</h2><div id="note-list"></div></section>
+<section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
+<section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><div class="photo-empty">▧<br><br>아직 등록된 사진이 없어요.<br><br><span class="muted">나중에 사진을 추가할 수 있어요.</span></div></section>
+<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">대화 기록 초기화</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">메시지 앱의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">메시지로 이동</button></section>
 <div class="homebar"></div>
 </main>
 <script>
+// 이미 정상 작동하던 Vercel API 주소를 유지합니다.
 const API='https://fan-phone.vercel.app/api/chat';
 const screens=[...document.querySelectorAll('.screen')];
-function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus()}
-function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home')}
+function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();}
+function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home');}
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
 const apps=[['✉','메시지','messages'],['▧','사진','photos'],['▤','메모','notes'],['☎','전화','calls'],['⚙','설정','settings'],['✦','AI 채팅','ai']];
-document.getElementById('apps').innerHTML=apps.map(([icon,label,id])=>'<button class="app" onclick="show(\''+id+'\')"><span class="app-icon">'+icon+'</span><span>'+label+'</span></button>').join('');
+const appsEl=document.getElementById('apps');
+for(const [symbol,label,id] of apps){const btn=document.createElement('button');btn.className='app';const icon=document.createElement('span');icon.className='app-icon';icon.textContent=symbol;const text=document.createElement('span');text.textContent=label;btn.append(icon,text);btn.onclick=()=>show(id);appsEl.appendChild(btn);}
+// 전화 기록: 부재중 3회, 발신 1시간 2회, 발신 30분 3회.
+// 구체적인 통화 날짜와 시각은 지정되지 않아 표시하지 않습니다.
+const calls=[
+  {type:'부재중 전화',duration:'',missed:true},
+  {type:'부재중 전화',duration:'',missed:true},
+  {type:'부재중 전화',duration:'',missed:true},
+  {type:'발신 통화',duration:'1시간',missed:false},
+  {type:'발신 통화',duration:'1시간',missed:false},
+  {type:'발신 통화',duration:'30분',missed:false},
+  {type:'발신 통화',duration:'30분',missed:false},
+  {type:'발신 통화',duration:'30분',missed:false}
+];
+const callList=document.getElementById('call-list');
+for(const c of calls){const row=document.createElement('div');row.className='call'+(c.missed?' missed':'');const main=document.createElement('div');main.className='call-main';const name=document.createElement('div');name.className='call-name';name.textContent='최산';const detail=document.createElement('div');detail.className='call-detail';detail.textContent=c.type+(c.duration?' · '+c.duration:'');main.append(name,detail);const info=document.createElement('span');info.className='call-info';info.textContent='ⓘ';row.append(main,info);callList.appendChild(row);}
+// 메모 목록과 상세 화면
+const notes=[
+  {title:'10/24 산이랑 치이카와 보기!',body:'10/24 산이랑 치이카와 보기!'},
+  {title:'10/26 산이랑 닭갈비 먹기!',body:'10/26 산이랑 닭갈비 먹기!'},
+  {title:'언제 고백하지...',body:'언제 고백하지...\n산이도 나 좋아하는 거 맞겠지?'}
+];
+const noteList=document.getElementById('note-list');
+notes.forEach((note,i)=>{const btn=document.createElement('button');btn.className='note-item';const title=document.createElement('span');title.className='note-title';title.textContent=note.title;const preview=document.createElement('span');preview.className='note-preview';preview.textContent=note.body.replace(/\n/g,' ');btn.append(title,preview);btn.onclick=()=>{document.getElementById('note-detail-title').textContent=note.title;document.getElementById('note-detail-body').textContent=note.body;show('note-detail');};noteList.appendChild(btn);});
+// AI 채팅: 기존에 확인된 POST 방식과 messages 배열 유지
 let history=[],busy=false;
 const state=document.getElementById('aiState'),log=document.getElementById('chatlog'),input=document.getElementById('msg'),send=document.getElementById('sendBtn');
-function addBubble(t,mine,pending=false){const d=document.createElement('div');d.className='bubble'+(mine?' me':'')+(pending?' pending':'');d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
-document.getElementById('resetChat').onclick=()=>{history=[];log.replaceChildren();addBubble('새로운 대화를 시작해 보세요.',false);state.textContent='대화 기록을 초기화했어요.';document.getElementById('last-preview').textContent='대화 시작하기'};
+function addBubble(t,mine,pending=false){const d=document.createElement('div');d.className='bubble'+(mine?' me':'')+(pending?' pending':'');d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+document.getElementById('resetChat').onclick=()=>{history=[];log.replaceChildren();addBubble('새로운 대화를 시작해 보세요.',false);state.textContent='대화 기록을 초기화했어요.';document.getElementById('last-preview').textContent='대화 시작하기';};
 document.getElementById('chatForm').addEventListener('submit',async e=>{
-e.preventDefault();if(busy)return;
-const message=input.value.trim();if(!message)return;
-addBubble(message,true);input.value='';
-history.push({role:'user',content:message});
-document.getElementById('last-preview').textContent=message;
-busy=true;send.disabled=true;state.textContent='최산이 답장을 쓰고 있어요…';
-const waiting=addBubble('입력 중…',false,true);
-try{
-const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)}),signal:AbortSignal.timeout(30000)});
-const data=await response.json().catch(()=>({}));
-if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
-if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
-waiting.textContent=data.reply.trim();waiting.classList.remove('pending');
-history.push({role:'assistant',content:data.reply.trim()});
-document.getElementById('last-preview').textContent=data.reply.trim();
-state.textContent='AI가 생성한 가상 대화입니다.';
-}catch(err){waiting.remove();history.pop();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
-finally{busy=false;send.disabled=false;input.focus()}
+ e.preventDefault();if(busy)return;const message=input.value.trim();if(!message)return;
+ addBubble(message,true);input.value='';history.push({role:'user',content:message});document.getElementById('last-preview').textContent=message;
+ busy=true;send.disabled=true;state.textContent='최산이 답장을 쓰고 있어요…';const waiting=addBubble('입력 중…',false,true);
+ try{
+  const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)}),signal:AbortSignal.timeout(30000)});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
+  if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
+  waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});document.getElementById('last-preview').textContent=data.reply.trim();state.textContent='AI가 생성한 가상 대화입니다.';
+ }catch(err){waiting.remove();history.pop();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
+ finally{busy=false;send.disabled=false;input.focus();}
 });
-function time(){const n=new Date(),t=n.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit',hour12:false});document.getElementById('clock').textContent=t;document.getElementById('bigclock').textContent=t;document.getElementById('date').textContent=n.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'})}
+function time(){const n=new Date(),t=n.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit',hour12:false});document.getElementById('clock').textContent=t;document.getElementById('bigclock').textContent=t;document.getElementById('date').textContent=n.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
 time();setInterval(time,30000);
 </script>
 </body>
