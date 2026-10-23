@@ -90,6 +90,11 @@
 .voice-controls button.main{width:58px;height:58px;background:#e9e9ed;color:#15151a}
 .voice-transcript{min-height:110px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:pre-wrap;font-size:18px;line-height:1.7;background:#222229;border-radius:16px;padding:18px}
 .voice-timeline{display:flex;justify-content:space-between;color:#a9a9b5;font-size:12px;font-variant-numeric:tabular-nums}
+
+/* 비밀 엔딩 */
+.secret-toast{position:absolute;z-index:30;top:65px;left:16px;right:16px;background:#e9edf3ed;color:#20202a;border:0;border-radius:17px;padding:14px;text-align:left;box-shadow:0 10px 35px #0007;display:none;cursor:pointer}
+.secret-toast.visible{display:block}.secret-toast small{display:block;margin-top:5px;color:#50505c}
+.secret-screen{background:#15151c;padding:64px 23px 45px;color:#f5f5f7}.secret-letter{white-space:pre-wrap;line-height:1.95;font-size:15px;min-height:300px}.secret-actions{display:flex;gap:9px;margin-top:22px}.secret-actions button{flex:1;background:#33333f;border:1px solid #5b5b66;border-radius:12px;color:white;padding:13px 7px}.secret-response{margin-top:22px;background:#252530;border-radius:14px;padding:18px;white-space:pre-wrap;line-height:1.8}.secret-sub{font-size:12px;color:#a7a7b5}.secret-heart{text-align:center;font-size:38px;margin:16px 0;color:#f18a9e}.secret-hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -119,8 +124,11 @@
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
-<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
+<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
+
+<button class="secret-toast" id="secret-toast" type="button"><strong>📝 메모 · 숨겨진 메모를 발견했습니다.</strong><small>정우영이 끝내 보내지 못한 메시지 · 눌러서 확인</small></button>
+<section class="screen secret-screen" id="secret-ending"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><span class="secret-sub">SECRET ENDING</span></div><div class="secret-heart">♡</div><h2 style="text-align:center">보내지 못한 마음</h2><p class="secret-sub" style="text-align:center">2026. 10. 23. · 마지막 수정 23:48</p><div id="secret-letter" class="secret-letter"></div><div id="secret-after" class="secret-hidden"><p class="secret-sub" style="text-align:center">전송되지 않은 메시지입니다.</p><div class="secret-actions"><button id="secret-send">✉ 메시지 보내기</button><button id="secret-keep">🔒 비밀로 남기기</button></div><div id="secret-response" class="secret-response secret-hidden"></div><button id="secret-again" class="back" style="margin-top:18px">↺ 엔딩 다시 보기</button></div></section>
 <div class="homebar"></div>
 </main>
 <script>
@@ -207,7 +215,7 @@ function kakaoTab(tab){
 }
 document.querySelectorAll('[data-kakao-tab]').forEach(b=>b.addEventListener('click',()=>kakaoTab(b.dataset.kakaoTab)));
 const screens=[...document.querySelectorAll('.screen')];
-function show(id){if(id!=='voice-detail'&&typeof pauseVoice==='function')pauseVoice();screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();}
+function show(id){if(id!=='secret-ending'&&typeof stopSecretTyping==='function')stopSecretTyping();if(id!=='voice-detail'&&typeof pauseVoice==='function')pauseVoice();screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();if(id==='safari')markSecret('safari');}
 function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home');}
 document.getElementById('password').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
 const apps=[['💬','카카오톡','messages'],['▧','사진','photos'],['▤','메모','notes'],['☎','전화','calls'],['🌐','Safari','safari'],['📅','캘린더','calendar'],['🎙️','음성 메모','voice-memos'],['⚙','설정','settings'],['✦','AI 채팅','ai']];
@@ -235,7 +243,7 @@ const notes=[
    {title:'절대 보여주지 말 것 🔒',body:'산아 나 너 좋아해.\n\n아니 너무 갑작스럽나?\n산아 우리 둘이 영화 볼래?\n아 이것도 이상한데...\n\n근데 너랑 있으면 진짜 좋아.\n이건 언젠가 꼭 말해야지.\n\n...언제 고백하지?'}
 ];
 const noteList=document.getElementById('note-list');
-notes.forEach((note,i)=>{const btn=document.createElement('button');btn.className='note-item';const title=document.createElement('span');title.className='note-title';title.textContent=note.title;const preview=document.createElement('span');preview.className='note-preview';preview.textContent=note.body.replace(/\n/g,' ');btn.append(title,preview);btn.onclick=()=>{document.getElementById('note-detail-title').textContent=note.title;document.getElementById('note-detail-body').textContent=note.body;show('note-detail');};noteList.appendChild(btn);});
+notes.forEach((note,i)=>{const btn=document.createElement('button');btn.className='note-item';const title=document.createElement('span');title.className='note-title';title.textContent=note.title;const preview=document.createElement('span');preview.className='note-preview';preview.textContent=note.body.replace(/\n/g,' ');btn.append(title,preview);btn.onclick=()=>{if(note.title==='절대 보여주지 말 것 🔒')markSecret('note');document.getElementById('note-detail-title').textContent=note.title;document.getElementById('note-detail-body').textContent=note.body;show('note-detail');};noteList.appendChild(btn);});
 
 // 사진 보관함: GitHub photos 폴더에 업로드한 사진 4장
 const photoFiles=[
@@ -347,13 +355,81 @@ function pauseVoice(){if(voiceTimer!==null){clearInterval(voiceTimer);voiceTimer
 function renderVoice(){const m=voiceMemos[voiceIndex];document.getElementById('voice-title').textContent=m.title;document.getElementById('voice-date').textContent=m.date;document.getElementById('voice-current').textContent=voiceStamp(voiceSeconds);document.getElementById('voice-total').textContent=voiceStamp(m.duration);const lines=m.lines.filter(x=>x[1]<=voiceSeconds);document.getElementById('voice-transcript').textContent=lines.length?lines.at(-1)[0]:'▶ 버튼을 눌러 녹음 내용을 확인하세요.';[...voiceWave.children].forEach((bar,i)=>bar.classList.toggle('played',i/voiceWave.children.length<=voiceSeconds/m.duration));}
 function openVoice(i){pauseVoice();voiceIndex=i;voiceSeconds=0;renderVoice();show('voice-detail');}
 function closeVoice(){pauseVoice();show('voice-memos');}
-function voiceTick(){const m=voiceMemos[voiceIndex];voiceSeconds=Math.min(m.duration,voiceSeconds+1);renderVoice();if(voiceSeconds>=m.duration)pauseVoice();}
+function voiceTick(){const m=voiceMemos[voiceIndex];voiceSeconds=Math.min(m.duration,voiceSeconds+1);renderVoice();if(voiceSeconds>=m.duration){pauseVoice();if(voiceIndex===2)markSecret('practice');if(voiceIndex===3)markSecret('last');}}
 document.getElementById('voice-play').onclick=()=>{if(voicePlaying){pauseVoice();return;}if(voiceSeconds>=voiceMemos[voiceIndex].duration)voiceSeconds=0;voicePlaying=true;document.getElementById('voice-play').textContent='Ⅱ';voiceTick();if(voicePlaying)voiceTimer=setInterval(voiceTick,1000);};
 document.getElementById('voice-prev').onclick=()=>{voiceSeconds=0;renderVoice();};
 document.getElementById('voice-next').onclick=()=>{const m=voiceMemos[voiceIndex];voiceSeconds=m.lines.find(x=>x[1]>voiceSeconds)?.[1]??m.duration;renderVoice();if(voiceSeconds>=m.duration)pauseVoice();};
 
 function time(){const n=new Date(),t=n.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit',hour12:false});document.getElementById('clock').textContent=t;document.getElementById('bigclock').textContent=t;document.getElementById('date').textContent=n.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
 time();setInterval(time,30000);
+
+// 비밀 엔딩: AI 서버 요청/일일 메시지 제한과 완전히 독립적입니다.
+const SECRET_KEY='fan-phone-secret-ending-v1';
+const SECRET_CLUES=['note','safari','practice','last'];
+let secretProgress={};
+try{const stored=JSON.parse(localStorage.getItem(SECRET_KEY)||'{}');if(stored&&typeof stored==='object')secretProgress=stored;}catch{}
+let secretTimer=null,secretToastTimer=null;
+const secretLetter=`산아.
+
+나 사실 너한테 하고 싶은 말 있어.
+
+근데 이걸 어떻게 말해야 할지 모르겠어.
+너한테는 맨날 장난도 잘 치고
+사랑한다고도 아무렇지 않게 말하면서.
+
+진짜 좋아한다는 말은 왜 이렇게 어렵냐.
+
+혹시 네가 나를 불편해하면 어떡하지.
+지금처럼 못 지내게 되면 어떡하지.
+
+그래서 그냥 조금만 더 좋아하려고.
+
+내일도 네 옆에서 웃고,
+아무렇지 않게 장난치고,
+네가 나를 부르면 제일 먼저 돌아보고.
+
+그러다가 언젠가는.
+
+산아, 나 너 좋아해.
+
+장난 아니고.
+진짜로.`;
+function saveSecret(){try{localStorage.setItem(SECRET_KEY,JSON.stringify(secretProgress));}catch{}}
+function markSecret(clue){
+ if(!SECRET_CLUES.includes(clue)||secretProgress[clue])return;
+ secretProgress[clue]=true;saveSecret();
+ if(SECRET_CLUES.every(k=>secretProgress[k])){
+  secretProgress.unlocked=true;saveSecret();
+  document.getElementById('replay-ending').style.display='inline-block';
+  // 마지막 녹음의 여운 뒤에 작은 알림을 표시
+  clearTimeout(secretToastTimer);
+  secretToastTimer=setTimeout(()=>document.getElementById('secret-toast').classList.add('visible'),1800);
+ }
+}
+function stopSecretTyping(){if(secretTimer!==null){clearInterval(secretTimer);secretTimer=null;}}
+function openSecretEnding(){
+ if(!secretProgress.unlocked)return;
+ document.getElementById('secret-toast').classList.remove('visible');
+ stopSecretTyping();show('secret-ending');
+ const target=document.getElementById('secret-letter'),after=document.getElementById('secret-after'),response=document.getElementById('secret-response');
+ target.textContent='';after.classList.add('secret-hidden');response.classList.add('secret-hidden');
+ let pos=0;
+ secretTimer=setInterval(()=>{
+  pos=Math.min(secretLetter.length,pos+2);target.textContent=secretLetter.slice(0,pos);
+  if(pos>=secretLetter.length){stopSecretTyping();after.classList.remove('secret-hidden');}
+ },35);
+}
+document.getElementById('secret-toast').onclick=openSecretEnding;
+document.getElementById('replay-ending').onclick=openSecretEnding;
+document.getElementById('secret-again').onclick=openSecretEnding;
+document.getElementById('secret-send').onclick=()=>{
+ const el=document.getElementById('secret-response');el.textContent='가상 메시지 · 최산\n\n“우영아. 나도 너한테 할 말 있는데.”\n\n그리고 이야기는 여기서 끝.';el.classList.remove('secret-hidden');
+};
+document.getElementById('secret-keep').onclick=()=>{
+ const el=document.getElementById('secret-response');el.textContent='“오늘도 좋아했다. 내일도 아마 그럴 거다.”\n\n정우영의 휴대폰이 다시 잠깁니다.';el.classList.remove('secret-hidden');
+ setTimeout(()=>{if(document.getElementById('secret-ending').classList.contains('active')){stopSecretTyping();show('lock');}},3200);
+};
+if(secretProgress.unlocked)document.getElementById('replay-ending').style.display='inline-block';
 </script>
 </body>
 </html>
