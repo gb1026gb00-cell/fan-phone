@@ -337,7 +337,7 @@ document.getElementById('chatForm').addEventListener('submit',async e=>{
  addBubble(message,true);input.value='';history.push({role:'user',content:message});saveHistory();document.getElementById('last-preview').textContent=message;
  busy=true;send.disabled=true;state.textContent='최산이 답장을 쓰고 있어요…';const waiting=addBubble('입력 중…',false,true);
  try{
-  const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16)}),signal:AbortSignal.timeout(30000)});
+  const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-16),relationshipMode:(JSON.parse(localStorage.getItem('fan-phone-story-v2')||'{}').trueUnlocked===true?'dating':'friends')}),signal:AbortSignal.timeout(30000)});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
   if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
