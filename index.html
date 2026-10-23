@@ -6,6 +6,8 @@
 <title>Fan Phone · 정우영</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#101014;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;min-height:100dvh;padding:12px}button,input{font:inherit}button{cursor:pointer}.phone{width:min(390px,100%);height:min(820px,calc(100dvh - 24px));min-height:520px;background:#08080a;border:7px solid #33343a;border-radius:48px;position:relative;overflow:hidden;box-shadow:0 20px 60px #0008}.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:112px;height:29px;border-radius:22px;background:#020204;z-index:10}.status{position:absolute;top:15px;left:0;right:0;padding:0 28px;display:flex;justify-content:space-between;font-size:13px;font-weight:bold;z-index:9}.screen{height:100%;display:none;overflow:auto}.screen.active{display:block}.lock{background:linear-gradient(#10131f99,#050507bb),url('lockscreen.jpg') center/cover,#14141b;text-align:center;padding:100px 20px}.lock-time{font-size:76px;font-weight:200;margin:5px 0}.lock-bottom{position:absolute;bottom:45px;left:0;right:0}.unlock{background:#ffffff25;border:1px solid #ffffff44;color:white;border-radius:24px;padding:13px 24px}.muted{font-size:12px;color:#aaaab4}.pin{text-align:center;background:#111115;padding:110px 25px}.pin input{width:180px;background:#26262c;color:white;border:1px solid #555;border-radius:14px;text-align:center;letter-spacing:10px;padding:13px;font-size:24px}.primary{background:#eee;color:#111;border:0;border-radius:14px;padding:13px 22px;margin-top:18px}.error{color:#ff9d9d;min-height:22px}.home{background:linear-gradient(155deg,#292b32,#0b0b0e 65%);padding:86px 23px}.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 12px;margin-top:30px}.app{border:0;background:none;color:#eee;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px}.app-icon{width:59px;height:59px;border:1px solid #555;border-radius:17px;background:#24242b;display:grid;place-items:center;font-size:25px}.panel{background:#0e0e11;padding:62px 18px 28px}.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px}.back{border:0;background:#24242a;color:white;border-radius:12px;padding:9px 12px}.card{background:#202025;border:1px solid #333;border-radius:18px;padding:15px;margin-bottom:12px}.avatar{width:48px;height:48px;border-radius:50%;background:#34343c;display:grid;place-items:center;font-weight:bold}.conversation-row{width:100%;display:flex;gap:12px;align-items:center;background:none;color:white;border:0;text-align:left}.conversation-text{flex:1}.chat-header{justify-content:center;position:relative;flex-direction:column;gap:5px;margin-bottom:12px}.chat-header .back{position:absolute;left:0;top:9px}.chat-header h2{font-size:15px;margin:0}.chat-header .avatar{width:40px;height:40px}.chat-caption{font-size:10px;color:#aaa;text-align:center}.ai-state{font-size:11px;text-align:center;color:#bdbdc8;margin:10px 0}.chatlog{height:calc(100% - 210px);overflow:auto;display:flex;flex-direction:column;gap:9px;padding:12px 0}.chat-day{text-align:center;color:#aaa;font-size:11px;margin:12px 0}.bubble{padding:11px 14px;border-radius:17px;max-width:83%;font-size:14px;line-height:1.5;background:#29292f;align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.me{align-self:flex-end;background:#2675e8;color:white}.pending{opacity:.6}.composer{display:flex;gap:8px;position:absolute;bottom:24px;left:18px;right:18px}.composer input{min-width:0;flex:1;background:#25252c;border:1px solid #474750;color:white;border-radius:20px;padding:12px}.composer button{border:0;border-radius:50%;width:42px;background:#e8e8ed;color:#16161a}.composer button:disabled{opacity:.4}.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);height:5px;width:120px;border-radius:10px;background:#ddd;opacity:.65}.call{display:flex;align-items:center;gap:10px;border-bottom:1px solid #34343a;padding:14px 4px}.call-main{flex:1}.call-name{font-size:16px;font-weight:600}.call.missed .call-name{color:#ff5a63}.call-detail{font-size:12px;color:#aaaab4;margin-top:4px}.call-time{font-size:12px;color:#aaaab4}.call-info{color:#58a6ff;font-size:19px}.note-item{width:100%;display:block;text-align:left;color:white;border:0;background:#25252a;border-radius:14px;padding:16px;margin-bottom:10px}.note-title{display:block;font-weight:650;font-size:15px}.note-preview{display:block;color:#a9a9b3;font-size:12px;margin-top:7px}.note-content{white-space:pre-wrap;line-height:1.8;font-size:17px;margin-top:28px}.photo-empty{border:1px dashed #555;border-radius:18px;padding:55px 20px;text-align:center;color:#aaa;margin-top:25px}.pill{font-size:12px;background:#34343b;padding:6px 10px;border-radius:14px}.section-heading{display:flex;align-items:center;justify-content:space-between}
+/* 메시지 목록 및 프로필 */
+.conversation-card{padding:0;overflow:hidden}.conversation-row{padding:14px 15px;min-height:76px}.conversation-row:disabled{opacity:1;cursor:default}.conversation-row .conversation-text{min-width:0}.preview-line{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:5px}.row-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}.pinned{font-size:11px;color:#8eb7ff}.avatar{flex-shrink:0;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover;display:block}.chat-message{display:flex;gap:7px;align-items:flex-end;width:100%}.chat-message.me{justify-content:flex-end}.chat-message .bubble{align-self:auto}.chat-message .avatar{width:30px;height:30px;font-size:11px}.chat-message .avatar.mine{background:#34343c}.chat-message .avatar.other{background:#454a58}
 </style>
 </head>
 <body>
@@ -14,7 +16,7 @@
 <section class="screen lock active" id="lock"><div id="date"></div><div class="lock-time" id="bigclock">9:41</div><div class="lock-bottom"><button class="unlock" onclick="show('pin')">위로 밀어 잠금 해제 ↑</button><p class="muted">버튼을 눌러 비밀번호를 입력하세요</p></div></section>
 <section class="screen pin" id="pin"><h2>암호 입력</h2><p class="muted">팬메이드 휴대폰</p><input id="password" type="password" inputmode="numeric" maxlength="4" placeholder="••••"><br><button class="primary" onclick="unlock()">잠금 해제</button><p class="error" id="pinerror"></p><button class="back" onclick="show('lock')">돌아가기</button></section>
 <section class="screen home" id="home"><h1>정우영의 iPhone</h1><p class="muted">Fanmade Phone · Dark Edition</p><div class="apps" id="apps"></div></section>
-<section class="screen panel" id="messages"><h1>메시지</h1><div class="card"><button class="conversation-row" onclick="show('chat')"><span class="avatar">산</span><span class="conversation-text"><strong>최산</strong><br><span class="muted" id="last-preview">지금 가도 돼?</span></span><span class="muted">오늘 ›</span></button></div><p class="muted">정우영의 휴대폰에 저장된 가상의 대화입니다.</p></section>
+<section class="screen panel" id="messages"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h1 style="margin:0">메시지</h1></div><div id="conversation-list"></div><p class="muted">정우영의 휴대폰에 저장된 팬메이드 가상 대화입니다. 최산 채팅방만 이용할 수 있어요.</p></section>
 <section class="screen panel" id="chat"><div class="toolbar chat-header"><button class="back" onclick="show('messages')">‹ 목록</button><span class="avatar">산</span><h2>최산</h2></div><p class="chat-caption">팬픽용 가상 대화 · 실제 인물의 메시지가 아닙니다</p><p class="ai-state" id="aiState">AI 연결 준비 완료</p><div class="chatlog" id="chatlog"><div class="chat-day">가상 AI 대화 · 새로운 대화를 시작해 보세요</div></div><form class="composer" id="chatForm"><input id="msg" placeholder="정우영으로 메시지 보내기" autocomplete="off" maxlength="1000"><button type="submit" id="sendBtn">↑</button></form></section>
 <section class="screen panel" id="calls"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>전화</h2></div><div class="section-heading"><h2>최근 통화</h2><span class="pill">8건</span></div><div id="call-list"></div></section>
 <section class="screen panel" id="notes"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>메모</h2></div><h2>모든 메모</h2><div id="note-list"></div></section>
@@ -27,6 +29,39 @@
 <script>
 // 이미 정상 작동하던 Vercel API 주소를 유지합니다.
 const API='https://fan-phone.vercel.app/api/chat';
+// 정우영 사진: 현재 파일에서 확인되는 이미지 파일은 lockscreen.jpg뿐입니다.
+// 기존 사진이 우영이 프로필이라면 그대로 사용합니다. 별도 사진이면 아래 경로만 변경하세요.
+const WOOYOUNG_PROFILE='lockscreen.jpg';
+const otherConversations=[
+ {name:'박성화',preview:'우영아 잘 자, 내일 보자',when:'어제'},
+ {name:'김홍중',preview:'내일 연습 시간 확인했지?',when:'어제'},
+ {name:'정윤호',preview:'ㅋㅋㅋㅋ 다음에 같이 가자',when:'수요일'},
+ {name:'강여상',preview:'알겠어 ㅋㅋㅋ',when:'화요일'},
+ {name:'송민기',preview:'뭐하냐 ㅋㅋㅋㅋ',when:'월요일'},
+ {name:'최종호',preview:'형 나중에 연락할게요',when:'일요일'}
+];
+function avatar(name,mine=false){
+ const el=document.createElement('span');el.className='avatar'+(mine?' mine':' other');
+ if(mine){const img=document.createElement('img');img.src=WOOYOUNG_PROFILE;img.alt='정우영 프로필';img.onerror=()=>{img.remove();el.textContent='우';};el.appendChild(img);}
+ else el.textContent=name==='최산'?'산':name.slice(-1);
+ return el;
+}
+function conversationRow(name,preview,when,active=false){
+ const card=document.createElement('div');card.className='card conversation-card';
+ const btn=document.createElement('button');btn.className='conversation-row';btn.type='button';
+ btn.disabled=!active;if(active)btn.onclick=()=>show('chat');
+ const pic=avatar(name),info=document.createElement('span');info.className='conversation-text';
+ const title=document.createElement('strong');title.textContent=name;
+ const sub=document.createElement('span');sub.className='muted preview-line';sub.textContent=preview;
+ if(active)sub.id='last-preview';info.append(title,sub);
+ const side=document.createElement('span');side.className='row-side';
+ const time=document.createElement('span');time.className='muted';time.textContent=when;side.appendChild(time);
+ if(active){const pin=document.createElement('span');pin.className='pinned';pin.textContent='📌 고정';side.appendChild(pin);}
+ btn.append(pic,info,side);card.appendChild(btn);return card;
+}
+const conversationList=document.getElementById('conversation-list');
+conversationList.appendChild(conversationRow('최산','지금 가도 돼?','오늘',true));
+for(const c of otherConversations)conversationList.appendChild(conversationRow(c.name,c.preview,c.when));
 const screens=[...document.querySelectorAll('.screen')];
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();}
 function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home');}
@@ -59,7 +94,12 @@ notes.forEach((note,i)=>{const btn=document.createElement('button');btn.classNam
 // AI 채팅: 기존에 확인된 POST 방식과 messages 배열 유지
 let history=[],busy=false;
 const state=document.getElementById('aiState'),log=document.getElementById('chatlog'),input=document.getElementById('msg'),send=document.getElementById('sendBtn');
-function addBubble(t,mine,pending=false){const d=document.createElement('div');d.className='bubble'+(mine?' me':'')+(pending?' pending':'');d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+function addBubble(t,mine,pending=false){
+ const row=document.createElement('div');row.className='chat-message'+(mine?' me':'');
+ const d=document.createElement('div');d.className='bubble'+(mine?' me':'')+(pending?' pending':'');d.textContent=t;
+ if(mine){row.append(d,avatar('정우영',true));}else{row.append(avatar('최산'),d);}
+ log.appendChild(row);log.scrollTop=log.scrollHeight;return d;
+}
 document.getElementById('resetChat').onclick=()=>{history=[];log.replaceChildren();addBubble('새로운 대화를 시작해 보세요.',false);state.textContent='대화 기록을 초기화했어요.';document.getElementById('last-preview').textContent='대화 시작하기';};
 document.getElementById('chatForm').addEventListener('submit',async e=>{
  e.preventDefault();if(busy)return;const message=input.value.trim();if(!message)return;
@@ -71,7 +111,7 @@ document.getElementById('chatForm').addEventListener('submit',async e=>{
   if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
   if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
   waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});document.getElementById('last-preview').textContent=data.reply.trim();state.textContent='AI가 생성한 가상 대화입니다.';
- }catch(err){waiting.remove();history.pop();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
+ }catch(err){waiting.parentElement.remove();history.pop();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
  finally{busy=false;send.disabled=false;input.focus();}
 });
 function time(){const n=new Date(),t=n.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit',hour12:false});document.getElementById('clock').textContent=t;document.getElementById('bigclock').textContent=t;document.getElementById('date').textContent=n.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});}
