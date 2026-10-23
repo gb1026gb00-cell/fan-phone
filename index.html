@@ -97,6 +97,11 @@
 .secret-screen{background:#15151c;padding:64px 23px 45px;color:#f5f5f7}.secret-letter{white-space:pre-wrap;line-height:1.95;font-size:15px;min-height:300px}.secret-actions{display:flex;gap:9px;margin-top:22px}.secret-actions button{flex:1;background:#33333f;border:1px solid #5b5b66;border-radius:12px;color:white;padding:13px 7px}.secret-response{margin-top:22px;background:#252530;border-radius:14px;padding:18px;white-space:pre-wrap;line-height:1.8}.secret-sub{font-size:12px;color:#a7a7b5}.secret-heart{text-align:center;font-size:38px;margin:16px 0;color:#f18a9e}.secret-hidden{display:none!important}
 .screen:not(.active){display:none!important}
 .photo-viewer.active{display:flex}
+
+/* 2부 수신 전화와 3부 히든 엔딩 */
+.incoming-call{position:absolute;inset:0;z-index:40;background:linear-gradient(155deg,#34465c,#10131c 70%);display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:120px 24px 100px;text-align:center}
+.incoming-call.visible{display:flex}.incoming-name{font-size:40px;margin:15px 0}.incoming-actions{display:flex;justify-content:space-around;width:100%;gap:40px}.incoming-actions button{width:90px;height:90px;border-radius:50%;border:0;color:white;font-size:28px}.call-accept{background:#28a745}.call-decline{background:#db414b}
+.story-panel{background:#141821;padding:68px 22px 42px}.story-line{background:#283343;border-radius:20px;padding:25px 20px;font-size:19px;line-height:1.85;white-space:pre-wrap;margin:35px 0;min-height:180px}.story-button{width:100%;padding:16px;border-radius:15px;background:#e9e9ef;color:#14141b;border:0;font-weight:700}.story-button:disabled{opacity:.45}.story-hint{color:#b9c7d7;font-size:13px;line-height:1.8}.secret-clue-new{border-color:#e8a2b2!important}.final-letter{font-size:17px;line-height:2.05;white-space:pre-wrap;margin-top:28px}
 </style>
 </head>
 <body>
@@ -126,11 +131,14 @@
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
-<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
+<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" id="replay-call" type="button" style="display:none">📞 최산의 전화 다시 받기</button></div><div class="card"><button class="back" id="replay-true" type="button" style="display:none">💗 진짜 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
 
 <button class="secret-toast" id="secret-toast" type="button"><strong>📝 메모 · 숨겨진 메모를 발견했습니다.</strong><small>정우영이 끝내 보내지 못한 메시지 · 눌러서 확인</small></button>
 <section class="screen secret-screen" id="secret-ending"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><span class="secret-sub">SECRET ENDING</span></div><div class="secret-heart">♡</div><h2 style="text-align:center">보내지 못한 마음</h2><p class="secret-sub" style="text-align:center">2026. 10. 23. · 마지막 수정 23:48</p><div id="secret-letter" class="secret-letter"></div><div id="secret-after" class="secret-hidden"><p class="secret-sub" style="text-align:center">전송되지 않은 메시지입니다.</p><div class="secret-actions"><button id="secret-send">✉ 메시지 보내기</button><button id="secret-keep">🔒 비밀로 남기기</button></div><div id="secret-response" class="secret-response secret-hidden"></div><button id="secret-again" class="back" style="margin-top:18px">↺ 엔딩 다시 보기</button></div></section>
+<div class="incoming-call" id="incoming-call"><div><p class="muted">수신 전화 · 팬메이드 연출</p><div style="font-size:60px">📞</div><h2 class="incoming-name">최산</h2><p>휴대전화</p></div><div class="incoming-actions"><button type="button" class="call-decline" id="call-decline" aria-label="나중에 받기">✕</button><button type="button" class="call-accept" id="call-accept" aria-label="전화 받기">☎</button></div></div>
+<section class="screen story-panel" id="story-call"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><span class="muted">최산 · 통화 중</span></div><h2>📞 최산</h2><div class="story-line" id="call-story-line"></div><button class="story-button" id="call-story-next">계속 듣기 →</button><p class="story-hint">팬메이드 가상 통화 · 화면을 눌러 대사를 진행하세요.</p></section>
+<section class="screen story-panel" id="story-final"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><span class="muted">TRUE ENDING</span></div><div class="secret-heart">♡</div><h2 style="text-align:center">문을 열면</h2><div class="final-letter" id="true-ending-letter"></div><button class="story-button" id="true-ending-close" style="margin-top:28px">휴대폰으로 돌아가기</button></section>
 <div class="homebar"></div>
 </main>
 <script>
@@ -426,12 +434,57 @@ document.getElementById('replay-ending').onclick=openSecretEnding;
 document.getElementById('secret-again').onclick=openSecretEnding;
 document.getElementById('secret-send').onclick=()=>{
  const el=document.getElementById('secret-response');el.textContent='가상 메시지 · 최산\n\n“우영아. 나도 너한테 할 말 있는데.”';el.classList.remove('secret-hidden');
+ // 답장의 여운 뒤 전화가 도착합니다. 다시 누를 때 타이머가 겹치지 않도록 합니다.
+ clearTimeout(window.incomingCallTimer);
+ window.incomingCallTimer=setTimeout(()=>{if(document.getElementById('secret-ending').classList.contains('active'))document.getElementById('incoming-call').classList.add('visible');},2200);
 };
 document.getElementById('secret-keep').onclick=()=>{
  const el=document.getElementById('secret-response');el.textContent='“오늘도 좋아했다. 내일도 아마 그럴 거다.”';el.classList.remove('secret-hidden');
  setTimeout(()=>{if(document.getElementById('secret-ending').classList.contains('active')){stopSecretTyping();show('lock');}},3200);
 };
 if(secretProgress.unlocked)document.getElementById('replay-ending').style.display='inline-block';
+
+// ── 2부: 최산의 전화. 첫 엔딩에서 메시지를 보낸 경우에만 진행 ──
+const STORY_KEY='fan-phone-story-v2';
+let story={};try{story=JSON.parse(localStorage.getItem(STORY_KEY)||'{}')||{};}catch{}
+function saveStory(){try{localStorage.setItem(STORY_KEY,JSON.stringify(story));}catch{}}
+const callDialogue=[
+ '...여보세요?',
+ '“우영아.”\n\n익숙한 목소리인데, 오늘따라 이상하게 조심스럽다.',
+ '“아까 그 메시지. 진심이지?”',
+ '“응. 나 진짜 너 좋아해.”',
+ '잠깐의 침묵. 수화기 너머로 바람 소리와 누군가의 작은 웃음이 들린다.',
+ '“다행이다.”\n\n“나 혼자만 그런 줄 알았거든.”',
+ '“...뭐?”',
+ '“우영아, 너 지금 집이지?”',
+ '“응, 왜?”',
+ '“그럼 문 좀 열어 봐.”'
+];
+let callStep=0;
+function beginCall(){document.getElementById('incoming-call').classList.remove('visible');story.called=true;saveStory();callStep=0;show('story-call');renderCall();refreshStoryUI();}
+function renderCall(){document.getElementById('call-story-line').textContent=callDialogue[callStep];document.getElementById('call-story-next').textContent=callStep===callDialogue.length-1?'통화 종료 →':'계속 듣기 →';}
+document.getElementById('call-accept').onclick=beginCall;
+document.getElementById('call-decline').onclick=()=>{document.getElementById('incoming-call').classList.remove('visible');};
+document.getElementById('call-story-next').onclick=()=>{if(callStep<callDialogue.length-1){callStep++;renderCall();}else{story.callFinished=true;saveStory();refreshStoryUI();show('home');alert('통화가 끝났습니다.\n메모, 캘린더, 최근 통화에 새로운 흔적이 남았어요.');}};
+document.getElementById('replay-call').onclick=beginCall;
+// ── 3부: 전화 후 열린 세 가지 단서 ──
+const extraNote={title:'문 앞에서',body:'아직도 손이 떨린다.\n\n분명히 내가 먼저 좋아한다고 했는데.\n\n산이는 지금 내 문 앞에 있다.\n문을 열면 정말 모든 게 달라질까?\n\n...그래도 열어야지.'};
+const extraNoteButton=document.createElement('button');extraNoteButton.className='note-item secret-clue-new';
+extraNoteButton.innerHTML='<span class="note-title">💌 문 앞에서</span><span class="note-preview">새로 저장된 메모</span>';
+extraNoteButton.onclick=()=>{if(!story.callFinished)return;markStoryClue('note');document.getElementById('note-detail-title').textContent=extraNote.title;document.getElementById('note-detail-body').textContent=extraNote.body;show('note-detail');};
+noteList.prepend(extraNoteButton);
+const extraCall=document.createElement('div');extraCall.className='call secret-clue-new';extraCall.innerHTML='<div class="call-main"><div class="call-name">최산 💗</div><div class="call-detail">방금 전 · 수신 통화</div></div><span class="call-info">ⓘ</span>';
+extraCall.style.cursor='pointer';extraCall.onclick=()=>{if(!story.callFinished)return;markStoryClue('calls');alert('통화 기록\n\n최산 · 수신 통화\n“그럼 문 좀 열어 봐.”');};callList.prepend(extraCall);
+const originalRenderCalendar=renderCalendar;
+renderCalendar=function(){originalRenderCalendar();if(story.callFinished&&calYear===2026&&calMonth===9){const buttons=[...document.querySelectorAll('#calendar-grid .calendar-day')];const day=buttons.find(b=>b.firstChild?.nodeType===3&&b.firstChild.textContent==='31');if(day){day.classList.add('has-event','secret-clue-new');const old=day.onclick;day.onclick=()=>{old();markStoryClue('calendar');document.getElementById('calendar-detail').append('\n💗 그날부터, 우리 둘.');};}}};
+function markStoryClue(which){if(!story.callFinished)return;story['clue_'+which]=true;saveStory();refreshStoryUI();if(['note','calls','calendar'].every(k=>story['clue_'+k])){story.trueUnlocked=true;saveStory();refreshStoryUI();setTimeout(()=>{if(confirm('💗 새로운 엔딩이 열렸습니다.\n지금 확인할까요?'))openTrueEnding();},500);}}
+function refreshStoryUI(){document.getElementById('replay-call').style.display=story.called?'inline-block':'none';document.getElementById('replay-true').style.display=story.trueUnlocked?'inline-block':'none';extraNoteButton.style.display=story.callFinished?'block':'none';extraCall.style.display=story.callFinished?'flex':'none';}
+const trueLetter=`문밖에는 정말로 최산이 서 있었다.\n\n우영은 손잡이를 잡은 채 한참 동안 아무 말도 하지 못했다. 문 앞의 산은 조금 숨이 차 있었고, 이상하게도 우영보다 더 긴장한 얼굴이었다.\n\n“너 진짜 왔어?”\n\n“문 열어 보라니까 진짜 열어 주네.”\n\n“장난치지 마. 나 지금 심장 터질 것 같으니까.”\n\n산이 웃었다. 우영이 가장 좋아하는 얼굴로.\n\n“나도.”\n\n그 짧은 두 글자에 우영은 그동안 혼자 삼켰던 말들을 전부 들킨 기분이 들었다. 산이 한 걸음 다가왔다.\n\n“우영아, 우리 이제 안 숨기면 안 돼?”\n\n“...뭘?”\n\n“서로 좋아하는 거.”\n\n우영이 대답 대신 산의 손을 잡았다. 손끝이 따뜻했다.\n\n“응. 안 숨길래.”\n\n그날 밤, 정우영의 휴대폰에는 더 이상 보내지 못한 고백이 남지 않았다.\n\n대신 내일 같이 밥 먹자는 메시지가 하나 도착했다.\n\n최산: 내일도 보자.\n정우영: 내일만?\n최산: 그럼 매일. ♡`;
+function openTrueEnding(){if(!story.trueUnlocked)return;document.getElementById('true-ending-letter').textContent=trueLetter;show('story-final');}
+document.getElementById('replay-true').onclick=openTrueEnding;
+document.getElementById('true-ending-close').onclick=()=>show('home');
+refreshStoryUI();
+
 </script>
 </body>
 </html>
