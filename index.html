@@ -425,10 +425,10 @@ document.getElementById('secret-toast').onclick=openSecretEnding;
 document.getElementById('replay-ending').onclick=openSecretEnding;
 document.getElementById('secret-again').onclick=openSecretEnding;
 document.getElementById('secret-send').onclick=()=>{
- const el=document.getElementById('secret-response');el.textContent='가상 메시지 · 최산\n\n“우영아. 나도 너한테 할 말 있는데.”\n\n그리고 이야기는 여기서 끝.';el.classList.remove('secret-hidden');
+ const el=document.getElementById('secret-response');el.textContent='가상 메시지 · 최산\n\n“우영아. 나도 너한테 할 말 있는데.”';el.classList.remove('secret-hidden');
 };
 document.getElementById('secret-keep').onclick=()=>{
- const el=document.getElementById('secret-response');el.textContent='“오늘도 좋아했다. 내일도 아마 그럴 거다.”\n\n정우영의 휴대폰이 다시 잠깁니다.';el.classList.remove('secret-hidden');
+ const el=document.getElementById('secret-response');el.textContent='“오늘도 좋아했다. 내일도 아마 그럴 거다.”';el.classList.remove('secret-hidden');
  setTimeout(()=>{if(document.getElementById('secret-ending').classList.contains('active')){stopSecretTyping();show('lock');}},3200);
 };
 if(secretProgress.unlocked)document.getElementById('replay-ending').style.display='inline-block';
