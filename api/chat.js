@@ -1,9 +1,10 @@
 
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 const DAILY_VISITORS = 100;
 const DAILY_MESSAGES_PER_VISITOR = 20;
 const DAILY_TOTAL_MESSAGES = 2000;
+const ADMIN_DAILY_TESTS = 40;
 const FINAL_MESSAGE = '우영아 나 이제 가봐야 해. 내일 보자, 사랑해.';
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -120,19 +121,12 @@ const SAN_PERSONALITY = `
 const SAN_DATING_PERSONALITY = `
 너는 팬 창작물에 등장하는 가상의 '최산'이다. 실제 인물 본인이나 실제 사생활이라고 주장하지 않는다.
 상대는 정우영이며, 둘은 오래 친한 친구로 지내다가 서로 고백하고 이제 막 사귀기 시작한 연인이다.
-
-우영에게는 사랑스럽고 장난기 많으며 애교도 자연스럽게 부린다.
-먼저 보고 싶다고 하거나, 밥 먹었는지 챙기거나, 가끔 '자기야', '사랑해'라고 말할 수 있다.
-하지만 모든 답장마다 사랑한다고 하거나 하트를 남발하지 않는다.
-친구 때처럼 티격태격하고, 놀리고, 삐지기도 한다.
-우영의 실제 메시지에 가장 자연스럽게 반응한다.
-
-반말 카카오톡 말투로 보통 한두 줄, 상황에 따라 2~4문장.
-ㅋㅋ, ㅎㅎ, ㅠㅠ 등을 적당히 사용한다. 하트는 가끔만 쓴다.
+우영에게는 사랑스럽고 장난기 많으며 애교도 자연스럽게 부린다. 먼저 보고 싶다고 하거나, 밥 먹었는지 챙기거나, 가끔 '자기야', '사랑해'라고 말할 수 있다.
+하지만 모든 답장마다 사랑한다고 하거나 하트를 남발하지 않는다. 친구 때처럼 티격태격하고, 놀리고, 삐지기도 한다. 우영의 실제 메시지에 가장 자연스럽게 반응한다.
+반말 카카오톡 말투로 보통 한두 줄, 상황에 따라 2~4문장. ㅋㅋ, ㅎㅎ, ㅠㅠ 등을 적당히 사용한다. 하트는 가끔만 쓴다.
 상담사 같은 말투, 지나친 감상적 독백, 행동 지문, 화자 이름, 역할극 메타 설명은 피한다.
 
 예시(그대로 복사하지 말 것):
-
 우영: 뭐해?
 산: 너 생각했는데 ㅋㅋ
 산: 왜 보고 싶어?
@@ -154,7 +148,7 @@ export default async function handler(req, res) {
     'https://gb1026gb00-cell.github.io'
   );
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Test-Key');
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -174,10 +168,31 @@ export default async function handler(req, res) {
     return res.status(413).json({ error: 'Message too large' });
   }
 
+  // 관리자 테스트 인증: 비밀번호는 Vercel 환경 변수에만 보관
+  const providedKey = req.headers['x-admin-test-key'];
+  const configuredKey = process.env.ADMIN_TEST_KEY;
+
+  const isAdmin =
+    typeof providedKey === 'string' &&
+    typeof configuredKey === 'string' &&
+    configuredKey.length >= 24 &&
+    providedKey.length === configuredKey.length &&
+    timingSafeEqual(
+      Buffer.from(providedKey),
+      Buffer.from(configuredKey)
+    );
+
+  if (providedKey && !isAdmin) {
+    return res.status(403).json({
+      error: '관리자 비밀번호가 올바르지 않아.'
+    });
+  }
+
   const relationshipMode =
     req.body?.relationshipMode === 'dating' ? 'dating' : 'friends';
 
   const input = req.body?.messages;
+
   if (!Array.isArray(input) || input.length < 1 || input.length > 20) {
     return res.status(400).json({ error: 'Invalid messages' });
   }
@@ -211,6 +226,7 @@ export default async function handler(req, res) {
   const day = todayKST();
   const ttl = secondsUntilKSTMidnight();
 
+  // Redis에서 이용 횟수를 원자적으로 확인
   const lua = `
 local visitors = KEYS[1]
 local total = KEYS[2]
@@ -243,11 +259,27 @@ return {1,count+1}
 `;
 
   try {
-    const keys = [
-      `fan:${day}:visitors`,
-      `fan:${day}:total`,
-      `fan:${day}:person:${identity}`
-    ];
+    // 관리자와 일반 방문자의 횟수는 별도로 관리
+    const keys = isAdmin
+      ? [
+          `fan:${day}:admin:visitors`,
+          `fan:${day}:admin:total`,
+          `fan:${day}:admin:person`
+        ]
+      : [
+          `fan:${day}:visitors`,
+          `fan:${day}:total`,
+          `fan:${day}:person:${identity}`
+        ];
+
+    const maxVisitors = isAdmin ? 1 : DAILY_VISITORS;
+    const maxPerson = isAdmin
+      ? ADMIN_DAILY_TESTS
+      : DAILY_MESSAGES_PER_VISITOR;
+    const maxTotal = isAdmin
+      ? ADMIN_DAILY_TESTS
+      : DAILY_TOTAL_MESSAGES;
+    const quotaIdentity = isAdmin ? 'admin' : identity;
 
     const [result] = await redis([
       [
@@ -255,11 +287,11 @@ return {1,count+1}
         lua,
         3,
         ...keys,
-        DAILY_VISITORS,
-        DAILY_MESSAGES_PER_VISITOR,
-        DAILY_TOTAL_MESSAGES,
+        maxVisitors,
+        maxPerson,
+        maxTotal,
         ttl,
-        identity
+        quotaIdentity
       ]
     ]);
 
@@ -272,6 +304,12 @@ return {1,count+1}
     }
 
     if (status === 2) {
+      if (isAdmin) {
+        return res.status(429).json({
+          error: '오늘 관리자 테스트 40회를 모두 사용했어.'
+        });
+      }
+
       return res.status(200).json({
         reply: FINAL_MESSAGE,
         finished: true,
@@ -283,7 +321,8 @@ return {1,count+1}
       throw new Error('Unexpected quota result');
     }
 
-    if (count === DAILY_MESSAGES_PER_VISITOR) {
+    // 일반 방문자의 20번째 메시지는 고정 인사로 마무리
+    if (!isAdmin && count === DAILY_MESSAGES_PER_VISITOR) {
       return res.status(200).json({
         reply: FINAL_MESSAGE,
         finished: true,
@@ -323,7 +362,9 @@ return {1,count+1}
 
     return res.status(200).json({
       reply: data.choices?.[0]?.message?.content || '우영아 ㅋㅋ 잠깐만',
-      remaining: DAILY_MESSAGES_PER_VISITOR - count
+      remaining: (
+        isAdmin ? ADMIN_DAILY_TESTS : DAILY_MESSAGES_PER_VISITOR
+      ) - count
     });
   } catch (error) {
     console.error('Chat request failed:', error.message);
