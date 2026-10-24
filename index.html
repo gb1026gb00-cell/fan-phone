@@ -1,4 +1,5 @@
 
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -910,9 +911,16 @@ collectionApp.onclick=()=>show('ending-collection');document.getElementById('app
 renderEndingCollection();
 // ── 배드엔딩 경험 후 다시 플레이할 때 나타나는 보너스 녹음 005 ──
 function renderBonusVoiceMemo(){
- if(!secretProgress.badFinished)return;
- if(document.getElementById('bonus-voice-005'))return;
- const bonusMemo={title:'녹음 005 · 말하지 못한 연습',date:'2026. 10. 24.',duration:32,lines:[
+ const existing=document.getElementById('bonus-voice-005');
+ // 녹음 앱과 기존 001~004는 항상 유지하고, 005만 현재 회차의 배드엔딩에 따라 노출합니다.
+ if(!secretProgress.badFinished){
+  if(existing)existing.remove();
+  const idx=voiceMemos.findIndex(m=>m.bonusBadEnding===true);
+  if(idx>=0)voiceMemos.splice(idx,1);
+  return;
+ }
+ if(existing)return;
+ const bonusMemo={bonusBadEnding:true,title:'녹음 005 · 말하지 못한 연습',date:'2026. 10. 24.',duration:32,lines:[
   ['우영아.',0],['나 사실 너 좋아해.',4],['…….',8],['아, 씨. 이걸 어떻게 말하냐.',11],['그냥…… 한 번만 물어볼까.',15],['너는 나 어떻게 생각하냐고.',20],['……근데 네가 아니라고 하면 어떡하지.',26],['…….',31]
  ]};
  const bonusIndex=voiceMemos.length;voiceMemos.push(bonusMemo);
@@ -922,6 +930,12 @@ function renderBonusVoiceMemo(){
  button.onclick=()=>openVoice(bonusIndex);voiceList.appendChild(button);
 }
 renderBonusVoiceMemo();
+// 음성 메모 앱은 해금 조건과 무관하게 항상 홈에서 열립니다.
+const originalShowForVoice=show;
+show=function(id){
+ if(id==='voice-memos')renderBonusVoiceMemo();
+ originalShowForVoice(id);
+};
 // ── 두 엔딩을 모두 모았을 때만 열리는 마지막 통화 ──
 const bonusCallLines=[
  '야, 정우영.','나 하나만 물어보자.','그때 네가 나한테 그 메시지 안 보냈으면.','우리 어떻게 됐을까?','…….','아니다.','지금 잘됐으니까 됐지 뭐.','ㅋㅋㅋ 사랑해.'
