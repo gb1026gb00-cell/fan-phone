@@ -3,6 +3,7 @@
 
 
 
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -173,7 +174,7 @@
 <section class="screen panel" id="note-detail"><div class="toolbar"><button class="back" onclick="show('notes')">‹ 메모</button><span class="muted">정우영의 메모</span></div><h2 id="note-detail-title"></h2><p class="note-content" id="note-detail-body"></p></section>
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
-<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="admin-test-toggle" type="button">🧪 관리자 테스트 모드 켜기</button><div class="muted" id="admin-test-status" style="margin-top:8px">일반 방문자 모드</div></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" id="replay-call" type="button" style="display:none">📞 최산의 전화 다시 받기</button></div><div class="card"><button class="back" id="replay-true" type="button" style="display:none">💗 진짜 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
+<section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="admin-test-toggle" type="button">🧪 관리자 테스트 모드 켜기</button><div class="muted" id="admin-test-status" style="margin-top:8px">일반 방문자 모드</div></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card" id="replay-san-letter-card" style="display:none"><button class="back" id="replay-san-letter" type="button">📝 최산의 메모 · 정우영에게 (읽지 마)</button></div><div class="card"><button class="back" id="replay-call" type="button" style="display:none">📞 최산의 전화 다시 받기</button></div><div class="card"><button class="back" id="replay-true" type="button" style="display:none">💗 진짜 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
 <section class="screen panel" id="story-reset-settings"><div class="toolbar"><button class="back" onclick="show('settings')">‹ 설정</button><h2>스토리 다시 시작</h2></div><div class="card"><h3>처음부터 다시 플레이하기</h3><p class="muted">1부 스토리 진행 상황만 초기화됩니다. 출석도장·연속 출석·2부 진행 상황·엔딩 수집함은 유지됩니다. AI 채팅의 서버 일일 제한도 초기화되지 않습니다.</p><button class="restart-btn" onclick="restartFanStory()">↺ 처음부터 다시 하기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
 
@@ -1931,8 +1932,28 @@ show=function(id){
 extraRefresh();
 setTimeout(()=>{if(document.getElementById('home').classList.contains('active')){if(extraBurnoutWeek()>=4)extraCheckMemory();else extraCheckLove();}},1800);
 
+
+// 설정의 메모 다시 보기: 2부 해금 후 언제든 열람 가능.
+// 진행 기록·메모 해금 조건·이벤트 발생 조건은 변경하지 않습니다.
+(function(){
+ const card=document.getElementById('replay-san-letter-card');
+ const button=document.getElementById('replay-san-letter');
+ function updateSanLetterReplay(){
+   card.style.display=relUnlocked()?'block':'none';
+ }
+ button.addEventListener('click',function(){
+   if(!relUnlocked())return;
+   document.getElementById('note-detail-title').textContent=hiddenLetterTitle;
+   document.getElementById('note-detail-body').textContent=hiddenLetterBody;
+   show('note-detail');
+ });
+ const previousShowSanLetter=show;
+ show=function(id){
+   previousShowSanLetter(id);
+   if(id==='settings')updateSanLetterReplay();
+ };
+ updateSanLetterReplay();
+})();
 </script>
 </body>
 </html>
-⋮⋮⋮⋮
-⋮⋮⋮⋮
