@@ -1771,15 +1771,19 @@ function fixSavedYunhoWording(){
 function refreshYunhoListPreview(){
  if(!jealousYunhoReady())return;
  jealousYunhoRefresh();
- const chat=otherConversations.find(c=>c.name==='정윤호');
- if(!chat)return;
- const idx=otherConversations.indexOf(chat);
- const card=conversationList.querySelectorAll('.conversation-card')[idx+1];
- if(!card)return;
- const preview=card.querySelector('.preview-line');
- const when=card.querySelector('.row-side .muted');
- if(preview)preview.textContent=chat.preview;
- if(when)when.textContent=chat.when;
+ // 목록의 순서가 바뀌어도 다른 사람의 미리보기를 덮어쓰지 않도록
+ // 실제 채팅방 이름을 기준으로 찾아서 갱신합니다.
+ for(const name of ['김홍중','정윤호']){
+  const chat=otherConversations.find(c=>c.name===name);
+  if(!chat)continue;
+  const card=[...conversationList.querySelectorAll('.conversation-card')]
+   .find(el=>el.querySelector('.conversation-text strong')?.textContent===name);
+  if(!card)continue;
+  const preview=card.querySelector('.preview-line');
+  const when=card.querySelector('.row-side .muted');
+  if(preview)preview.textContent=chat.preview;
+  if(when)when.textContent=chat.when;
+ }
 }
 fixSavedYunhoWording();
 // 채팅방에 들어가기 전에도 최신 메시지와 '오늘' 표시가 보이게 합니다.
