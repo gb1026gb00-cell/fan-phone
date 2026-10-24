@@ -217,6 +217,22 @@
 </div>
 <div class="homebar"></div>
 </main>
+
+<!-- 추가 이벤트 전용 화면: 기존 화면과 저장 데이터는 변경하지 않습니다. -->
+<section class="screen panel" id="sweet-extra-call" style="background:linear-gradient(160deg,#35475d,#121520);text-align:center;padding-top:105px">
+ <div style="font-size:56px">📞</div><h1>최산 ❤️</h1><p style="color:#bfc9d5">통화 중 · 팬메이드 가상 통화</p>
+ <div id="sweet-extra-call-lines" style="white-space:pre-wrap;line-height:2.15;font-size:17px;text-align:left;background:#ffffff13;border-radius:20px;padding:22px;margin:35px 0"></div>
+ <button type="button" id="sweet-extra-call-end" class="story-button">통화 종료</button>
+</section>
+<section class="screen panel" id="sweet-extra-memory" style="background:#11131b;text-align:center">
+ <div class="toolbar"><button class="back" type="button" id="sweet-extra-memory-back">‹ 사진</button><h2>6년 전 오늘</h2></div>
+ <img id="sweet-extra-memory-photo" alt="6년 전 추억" style="width:100%;max-height:190px;object-fit:contain;border-radius:14px;margin:8px 0 18px">
+ <p style="font-size:12px;color:#aab3c0">2020. 11. 02. · 6년 전 오늘</p>
+ <div id="sweet-extra-memory-text" style="white-space:pre-wrap;text-align:left;line-height:1.85;font-size:15px;padding:18px 12px;background:#ffffff0c;border-radius:16px"></div>
+</section>
+<div id="sweet-extra-alert" hidden style="position:absolute;z-index:70;top:65px;left:15px;right:15px;padding:15px;background:#e9edf4;color:#18212e;border-radius:16px;box-shadow:0 10px 35px #0007;font-size:14px;line-height:1.65">
+ <div id="sweet-extra-alert-text"></div><div style="display:flex;gap:10px;margin-top:10px"><button type="button" id="sweet-extra-alert-ok" style="flex:1;padding:10px;border:0;border-radius:10px;background:#cbd9eb">확인</button><button type="button" id="sweet-extra-alert-later" style="padding:10px;border:0;border-radius:10px;background:#fff">나중에</button></div>
+</div>
 <script>
 // 이미 정상 작동하던 Vercel API 주소를 유지합니다.
 const API='https://fan-phone.vercel.app/api/chat';
@@ -1794,6 +1810,120 @@ show=function(id){
 };
 setTimeout(refreshYunhoListPreview,1200);
 
+
+
+// ===== 2부 달달 이벤트 / 3부 권태기 히든 이벤트 =====
+// 기존 연애/엔딩/출석 데이터는 읽기만 합니다. 별도의 키로 최초 확인 여부를 저장합니다.
+const EXTRA_KEY='fanphone-extra-love-events-v1';
+let extraFlags={};
+try{const a=JSON.parse(localStorage.getItem(EXTRA_KEY)||'{}');if(a&&typeof a==='object')extraFlags=a;}catch{}
+function extraSave(){try{localStorage.setItem(EXTRA_KEY,JSON.stringify(extraFlags));}catch{}}
+function extraDating(){return relUnlocked()&&!rel.modeStart&&!rel.ending;}
+function extraBurnoutWeek(){return relInBurnout()?relPostCount():0;}
+const extraAlert=document.getElementById('sweet-extra-alert');
+let extraAlertAction=null;
+function extraNotify(message,action){
+ if(!extraAlert.hidden)return false;
+ document.getElementById('sweet-extra-alert-text').textContent=message;
+ extraAlertAction=action;extraAlert.hidden=false;return true;
+}
+document.getElementById('sweet-extra-alert-ok').onclick=()=>{extraAlert.hidden=true;const a=extraAlertAction;extraAlertAction=null;if(a)a();};
+document.getElementById('sweet-extra-alert-later').onclick=()=>{extraAlert.hidden=true;extraAlertAction=null;};
+const extraLoveTexts=['우영아','나 너 보고십어','보고시퍼','보고 싶다','아','그냥 전화할래'];
+const extraCallScript=[
+ '산: 정우영.','우영: 왜애.','산: 사랑해.','우영: ……뭐야, 갑자기?','산: 그냥. 말하고 싶어서.',
+ '우영: ㅋㅋㅋㅋ 너 진짜 이상해.','산: 알아. 근데 너 좋아하면 좀 이상해지더라.',
+ '우영: ……','산: 보고 싶어, 우영아.','우영: 나도 보고 싶어.',
+ '산: 그럼 지금 만나자.','우영: 지금?','산: 응. 나 갈게.',
+ '우영: 야, 최산! 지금 몇 신데!','산: ㅋㅋㅋㅋ 사랑해. 이따 봐.'
+];
+let extraCallTimer=null,extraCallIndex=0;
+function extraStartCall(){
+ extraCallIndex=0;const area=document.getElementById('sweet-extra-call-lines');area.textContent='';
+ show('sweet-extra-call');
+ clearInterval(extraCallTimer);
+ extraCallTimer=setInterval(()=>{
+  if(!document.getElementById('sweet-extra-call').classList.contains('active')){clearInterval(extraCallTimer);return;}
+  if(extraCallIndex>=extraCallScript.length){clearInterval(extraCallTimer);return;}
+  area.textContent+=(extraCallIndex?'\n':'')+extraCallScript[extraCallIndex++];
+  area.scrollTop=area.scrollHeight;
+ },900);
+}
+document.getElementById('sweet-extra-call-end').onclick=()=>{clearInterval(extraCallTimer);show('home');};
+function extraCheckLove(){
+ if(!extraDating()||extraFlags.loveCall||!rel.dates.length)return;
+ // 최초 1회. 기존에 2부를 시작한 독자도 다음 접속 시 받을 수 있습니다.
+ if(extraNotify('💬 최산에게서 새 메시지가 도착했습니다. 확인할까요?',()=>{
+  extraFlags.loveCall=true;extraSave();
+  sanStoryAdd('system','💗 어느 날, 산이의 갑작스러운 선톡','extra-love-call-head');
+  extraLoveTexts.forEach((line,i)=>sanStoryAdd('san',line,'extra-love-call-'+i));
+  show('san-story-chat');
+  setTimeout(()=>extraNotify('📞 최산에게서 전화가 걸려 왔습니다. 받을까요?',extraStartCall),1200);
+ })){}
+}
+// 기존 음성 메모 4개는 그대로 두고 2부부터 다섯 번째 항목을 보여 줍니다.
+const extraVoiceMemo={title:'ㅋㅋㅋㅋㅋㅋ 최산 바보',date:'연애 중 어느 늦은 밤',duration:34,
+ lines:[['산: 우영아…….',0],['우영: 응.',2],['산: 나 너랑 결혼할래.',4],['우영: ㅋㅋㅋㅋㅋ 자라, 최산.',7],['산: 진짠데…….',10],['우영: 알겠어. 나랑 결혼해.',13],['산: ……약속했다.',16],['우영: 응. 약속.',18],['산: ……우영아.',20],['우영: 또 왜.',22],['산: 나 너 많이 사랑해.',24],['우영: 나도 사랑해.',26],['산: 얼마나?',28],['우영: 엄청.',30],['산: ㅋㅋㅋㅋ 나도……. (잠든 숨소리)',32],['우영: ……잘 자, 산아.',34]]};
+voiceMemos.push(extraVoiceMemo);
+const extraVoiceBtn=document.createElement('button');extraVoiceBtn.type='button';extraVoiceBtn.className='voice-item';extraVoiceBtn.hidden=true;
+extraVoiceBtn.innerHTML='<span class="voice-icon">🎙️</span><span><span class="voice-name">ㅋㅋㅋㅋㅋㅋ 최산 바보</span><small>연애 중 어느 늦은 밤 · 팬메이드 텍스트 녹음</small></span>';
+extraVoiceBtn.onclick=()=>openVoice(voiceMemos.length-1);voiceList.appendChild(extraVoiceBtn);
+// 3부 3주 차에 열리는 메모. 두 번째로 열었을 때만 마지막 문장이 추가됩니다.
+let extraMemoOpened=Number(extraFlags.memoOpened||0);
+const extraMemoBtn=document.createElement('button');extraMemoBtn.type='button';extraMemoBtn.className='note-item';extraMemoBtn.hidden=true;
+extraMemoBtn.innerHTML='<span class="note-title">최산</span><span class="note-preview">내가 아직도 너를 사랑하는 건지……</span>';
+extraMemoBtn.onclick=()=>{
+ extraMemoOpened++;extraFlags.memoOpened=extraMemoOpened;extraSave();
+ document.getElementById('note-detail-title').textContent='최산';
+ document.getElementById('note-detail-body').textContent='내가 아직도 너를 사랑하는 건지, 우리가 함께했던 시간을 사랑하는 건지 모르겠다.'+(extraMemoOpened>=2?'\n\n그래도 네가 없는 건 싫어.':'');
+ show('note-detail');
+};noteList.appendChild(extraMemoBtn);
+// 3부 2주 차, 우영이가 입력했다가 지우는 문장. 실제 메시지 전송 없음.
+let extraTypingTimer=null;
+function extraTypingScene(){
+ if(extraBurnoutWeek()<2||extraFlags.typingSeen)return;
+ extraFlags.typingSeen=true;extraSave();
+ const area=document.getElementById('san-story-log');
+ const line=document.createElement('div');line.className='bubble me';line.style.cssText='opacity:.65;min-height:42px;margin-top:10px';area.appendChild(line);
+ const phrases=['오늘 나 좀 보고 싶었어?','', '밥은 먹었어?','', '사랑해.',''];
+ let idx=0;clearInterval(extraTypingTimer);
+ function step(){
+  if(!document.getElementById('san-story-chat').classList.contains('active')){clearInterval(extraTypingTimer);line.remove();return;}
+  if(idx>=phrases.length){clearInterval(extraTypingTimer);line.remove();return;}
+  line.textContent=phrases[idx++]||'…';area.scrollTop=area.scrollHeight;
+ }
+ step();extraTypingTimer=setInterval(step,1700);
+}
+const extraMemoryLines=[
+ '산: 우영아.','우영: 응?','산: 나 너 진짜 많이 좋아한다.','우영: ㅋㅋㅋㅋ 갑자기?',
+ '산: 그냥. 너 보고 있으니까.','우영: 뭐가 그렇게 좋은데?','산: 글쎄.','우영: 뭐야. 이유도 없어?',
+ '산: 응. 없어. 그냥 네가 좋아.','우영: ……','산: 오늘도 좋고, 내일도 좋을 거고.',
+ '우영: ……응.','산: 십 년 뒤에도 내가 너 이렇게 좋아했으면 좋겠다.',
+ '우영: 왜 십 년 뒤까지야?','산: 그때 가서 또 십 년 더 좋아하려고.',
+ '우영: ㅋㅋㅋㅋㅋ 미친놈.','산: 사랑해, 우영아.','우영: 나도 사랑해.'
+];
+document.getElementById('sweet-extra-memory-text').textContent=extraMemoryLines.join('\n\n');
+document.getElementById('sweet-extra-memory-photo').src=photoUrl(0);
+document.getElementById('sweet-extra-memory-back').onclick=()=>show('photos');
+function extraCheckMemory(){
+ if(extraBurnoutWeek()<4||extraFlags.memorySeen)return;
+ extraNotify('📸 사진 · 6년 전 오늘의 추억이 도착했습니다.',()=>{
+  extraFlags.memorySeen=true;extraSave();show('sweet-extra-memory');
+ });
+}
+function extraRefresh(){
+ extraVoiceBtn.hidden=!relUnlocked();extraVoiceBtn.style.display=relUnlocked()?'flex':'none';
+ extraMemoBtn.hidden=extraBurnoutWeek()<3;extraMemoBtn.style.display=extraBurnoutWeek()>=3?'block':'none';
+}
+const extraBeforeShow=show;
+show=function(id){
+ extraBeforeShow(id);
+ extraRefresh();
+ if(id==='san-story-chat'&&extraBurnoutWeek()>=2&&!extraFlags.typingSeen)setTimeout(extraTypingScene,650);
+ if(id==='home')setTimeout(()=>{if(extraBurnoutWeek()>=4)extraCheckMemory();else extraCheckLove();},500);
+};
+extraRefresh();
+setTimeout(()=>{if(document.getElementById('home').classList.contains('active')){if(extraBurnoutWeek()>=4)extraCheckMemory();else extraCheckLove();}},1800);
 
 </script>
 </body>
