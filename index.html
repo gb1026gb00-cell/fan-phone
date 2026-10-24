@@ -1,5 +1,6 @@
 
 
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -134,6 +135,7 @@
 
 /* 2부: 출석 및 권태기 */
 .rel-banner{margin-top:16px;border:1px solid #5b4650;background:#291f2a;border-radius:14px;padding:12px;font-size:12px;line-height:1.8;color:#f3dbe5}.rel-badge{position:absolute;right:2px;top:2px;font-size:12px}.rel-overlay{display:none;position:absolute;inset:0;background:#08080bf0;z-index:40;align-items:center;justify-content:center;padding:25px}.rel-overlay.visible{display:flex}.rel-phone{width:100%;text-align:center}.rel-phone .story-line{min-height:130px;line-height:2.2;font-size:19px}.rel-choice{width:100%;padding:15px;border-radius:14px;border:1px solid #66535e;background:#29232d;color:white;margin:7px 0}.rel-stamp{font-size:12px;display:block;color:#ffb9d0}.rel-search{display:block;width:100%;padding:15px;text-align:left;border:1px solid #444;background:#25252a;border-radius:12px;color:#eee;margin-top:10px}.rel-missed{border-left:3px solid #a04c66;padding-left:12px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -960,7 +962,7 @@ document.getElementById('bonus-call-open').onclick=()=>{
 };
 document.getElementById('bonus-call-next').onclick=()=>{
  if(bonusCallStep<bonusCallLines.length-1){bonusCallStep++;renderBonusCall();}
- else {localStorage.setItem('fanphone-hidden-call-seen','1');show('ending-collection');if(typeof refreshRelationship==='function')refreshRelationship();}
+ else {localStorage.setItem('fanphone-hidden-call-seen','1');if(typeof clearOldCalendarAfterHidden==='function')clearOldCalendarAfterHidden();show('ending-collection');if(typeof refreshRelationship==='function')refreshRelationship();}
 };
 
 
@@ -995,7 +997,7 @@ function relationshipAttendance(){
  if(!rel.modeStart&&!rel.seventhDay&&streakDates(rel.dates)>=7)rel.seventhDay=today;
  if(!rel.modeStart&&rel.seventhDay&&dayDiff(rel.seventhDay,today)>=1){rel.modeStart=today;rel.postDates=[today];}
  else if(rel.modeStart&&!rel.postDates.includes(today))rel.postDates.push(today);
- saveRel();refreshRelationship();
+ saveRel();refreshRelationship();if(typeof refreshOptionalBurnout==='function')refreshOptionalBurnout();
 }
 // 권태기에도 고정 답장을 사용하지 않고 api/chat.js에서 AI 답장을 생성합니다.
 function relationshipLocalReply(){return false;}
@@ -1013,6 +1015,14 @@ if(firstAttendanceDay()){
  const [y,m]=virtualToday.split('-').map(Number);
  calYear=y;calMonth=m-1;calSelected=virtualToday;
 }
+// 히든 통화까지 완료한 뒤에는 과거 여행·데이트 일정을 비웁니다.
+// 고백/진엔딩 해금 전에는 기존 일정과 단서가 그대로 남습니다.
+function clearOldCalendarAfterHidden(){
+ if(!relUnlocked())return;
+ for(const key of Object.keys(calendarEvents))delete calendarEvents[key];
+ for(const key of Object.keys(afterDatingCalendar))delete afterDatingCalendar[key];
+}
+clearOldCalendarAfterHidden();
 // Calendar stamps: real Korean dates stored; shown as fictional dates from Oct 31.
 const renderCalendarBeforeRel=renderCalendar;
 renderCalendar=function(){renderCalendarBeforeRel();document.querySelectorAll('#calendar-grid .calendar-day').forEach(btn=>{
@@ -1028,6 +1038,52 @@ relMemoButton.onclick=()=>{rel.memo=true;saveRel();document.getElementById('note
 const relMissedButtons=['one','two'].map((key,i)=>{const btn=document.createElement('button');btn.className='note-item rel-missed';btn.innerHTML='<span class="note-title">📞 최산 · 발신 통화</span><span class="note-preview">응답 없음 · '+(i===0?'오후 11:42':'오전 01:16')+' · 눌러서 확인</span>';btn.onclick=()=>{if(!rel.missed.includes(key))rel.missed.push(key);saveRel();btn.querySelector('.note-preview').textContent='응답 없음 · 확인함';refreshRelationship();};callList.prepend(btn);return btn;});
 const relSearchButton=document.createElement('button');relSearchButton.className='rel-search';relSearchButton.textContent='◷ 남친이 식은거같아요';
 relSearchButton.onclick=()=>{rel.search=true;saveRel();const div=document.getElementById('rel-search-detail')||document.createElement('div');div.id='rel-search-detail';div.className='card';div.style.marginTop='14px';div.textContent='연인이 예전과 달라졌을 때\n\n오래 만난 연인 사이에서 표현이 줄어들 수 있습니다. 하지만 익숙함과 무관심은 같은 말이 아닙니다.\n\n사랑한다는 말을 듣고 싶은 게 그렇게 큰 욕심인가.';div.style.whiteSpace='pre-line';relSearchButton.after(div);refreshRelationship();};safariHistory.prepend(relSearchButton);
+// 권태기 선택 열람 콘텐츠: 엔딩 해금 조건과 완전히 별개입니다.
+const optionalBurnoutNotes=[
+ {title:'별거 아닌데',body:'오늘 산이가 먼저 잘 자라고 하지 않았다.\n\n사실 별거 아니다.\n내가 먼저 잘 자라고 하면 되는 건데.\n\n그런데 왜 자꾸 기다리게 되는지 모르겠다.\n\n예전에는 내가 잠들 때까지 기다려 줬으면서.\n\n이런 걸 서운해하는 내가 좀 우습기도 하다.'}
+];
+const optionalNoteButtons=optionalBurnoutNotes.map(n=>{
+ const b=document.createElement('button');b.className='note-item';b.innerHTML='<span class="note-title">📝 '+n.title+'</span><span class="note-preview">오늘 산이가 먼저 잘 자라고 하지 않았다.</span>';
+ b.onclick=()=>{document.getElementById('note-detail-title').textContent=n.title;document.getElementById('note-detail-body').textContent=n.body.replaceAll('\\n','\n');show('note-detail');};noteList.appendChild(b);return b;
+});
+const optionalSearches=['장기연애 연락 빈도','오래 사귀면 원래 설렘이 없어지나요','연애 7년 차 권태기','남자친구한테 서운한 거 말하는 법','오래된 연애 유지하는 법','남자친구가 바쁘면 기다려야 하나요'];
+const optionalSearchRows=optionalSearches.map(q=>{
+ const row=document.createElement('div');row.className='browser-entry';
+ const ico=document.createElement('span');ico.textContent='◷';const title=document.createElement('strong');title.textContent=q;
+ row.append(ico,title);safariHistory.appendChild(row);return row;
+});
+const optionalCallTimes=[
+ ['연애 초기','2시간 17분'],['3년 전','1시간 42분'],['1년 전','38분'],['지난달','12분'],['어제','47초']
+];
+const optionalCallHeading=document.createElement('div');optionalCallHeading.className='kakao-section';optionalCallHeading.textContent='🥀 오래된 통화 기록';
+const optionalCallRows=optionalCallTimes.map(([when,duration])=>{
+ const row=document.createElement('div');row.className='call';
+ const main=document.createElement('div');main.className='call-main';
+ const name=document.createElement('div');name.className='call-name';name.textContent='최산';
+ const detail=document.createElement('div');detail.className='call-detail';detail.textContent=when+' · '+duration;
+ main.append(name,detail);row.append(main);return row;
+});
+callList.append(optionalCallHeading,...optionalCallRows);
+// 고정 메시지는 카톡 대화창에서만 보여 줍니다.
+const burnoutPin=document.createElement('div');burnoutPin.id='burnout-pinned-message';
+burnoutPin.style.cssText='background:#ffffffc9;color:#26323b;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.6;margin:5px 0 10px;white-space:pre-line;';
+burnoutPin.textContent='📌 고정된 메시지 · 최산\n우영아 나 너 없으면 못 살아 ㅋㅋ\n그러니까 평생 내 옆에 있어야 해\n알겠지?';
+document.getElementById('aiState').after(burnoutPin);
+// 별도 권태기 음성 메모: 기존 005 및 미래의 006 번호를 건드리지 않습니다.
+const optionalVoiceMemo={title:'권태기 기록 · 그냥',date:'연애 8년 차',lines:[['산아.',0],['나 사실 요즘 좀 서운해.',3],['근데 너 바쁜 거 아니까……',7],['아니다.',11],['그냥 보고 싶다고.',14]],duration:18};
+const optionalVoiceIndex=voiceMemos.length;
+voiceMemos.push(optionalVoiceMemo);
+const optionalVoiceButton=document.createElement('button');optionalVoiceButton.type='button';optionalVoiceButton.className='voice-item';
+optionalVoiceButton.innerHTML='<span class="voice-icon">🎙️</span><span><span class="voice-name">🥀 그냥</span><small>권태기 기록 · 18초</small></span>';
+optionalVoiceButton.onclick=()=>openVoice(optionalVoiceIndex);voiceList.appendChild(optionalVoiceButton);
+function refreshOptionalBurnout(){
+ const visible=relInBurnout();
+ optionalNoteButtons.forEach(b=>b.hidden=!visible);
+ optionalSearchRows.forEach(b=>b.hidden=!visible);
+ optionalCallHeading.hidden=!visible;optionalCallRows.forEach(b=>b.hidden=!visible);
+ burnoutPin.hidden=!visible;optionalVoiceButton.hidden=!visible;
+}
+refreshOptionalBurnout();
 const showBeforeRel=show;show=function(id){
  if(id==='notes')relMemoButton.hidden=!relInBurnout();
  if(id==='calls')relMissedButtons.forEach(b=>b.hidden=!relInBurnout());
@@ -1043,6 +1099,22 @@ document.getElementById('rel-next').onclick=()=>{if(relStep<relLines.length-1){r
 document.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{rel.ending=btn.dataset.choice;saveRel();document.getElementById('rel-ending-title').textContent=rel.ending==='reconcile'?'ENDING 04 · 다시, 사랑':'ENDING 05 · 익숙했던 우리';document.getElementById('rel-ending-body').textContent=rel.ending==='reconcile'?'……진짜?\n아, 씨.\n나 진짜 너랑 헤어지는 줄 알았어.\n\n사랑해, 정우영.\n앞으로는 말로만 안 할게.':'……그래.\n네가 그렇게 생각한다면.\n\n미안해, 우영아.\n너 기다리게 해서.\n\n행복해야 해.\n\n[통화 종료]';show('rel-ending');refreshRelationship();});
 const oldRenderEndingCollection=renderEndingCollection;
 renderEndingCollection=function(){oldRenderEndingCollection();const parent=document.getElementById('collection-reward').parentElement;let extra=document.getElementById('rel-gallery');if(!extra){extra=document.createElement('div');extra.id='rel-gallery';extra.className='card';parent.appendChild(extra);}extra.textContent=rel.ending==='reconcile'?'💗 ENDING 04 — 다시, 사랑':rel.ending==='breakup'?'🥀 ENDING 05 — 익숙했던 우리':'🔒 2부 엔딩 — 아직 미발견';};
+// 2부 잠금화면: 독자별 첫 출석일을 기준으로 연애 n년 ♡ 표시.
+// 1부에서는 기존 "최산이랑 보내는 사계절" 문구를 유지합니다.
+function refreshAnniversaryCaption(){
+ const caption=document.querySelector('.dating-lock-caption');
+ if(!caption)return;
+ const first=firstAttendanceDay();
+ if(!relUnlocked()||!first){caption.textContent='최산이랑 보내는 사계절';return;}
+ const elapsed=Math.max(0,dayDiff(first,kstDay()));
+ const years=rel.modeStart||elapsed>=7?8:Math.min(7,elapsed+1);
+ caption.textContent=years+'년 ♡';
+}
+const showBeforeAnniversary=show;
+show=function(id){if(id==='lock')refreshAnniversaryCaption();showBeforeAnniversary(id);};
+const attendanceBeforeAnniversary=relationshipAttendance;
+relationshipAttendance=function(){attendanceBeforeAnniversary();refreshAnniversaryCaption();};
+refreshAnniversaryCaption();
 // Story reset keeps attendance stamps and chapter 2 relationship progress.
 // The original reset routine excludes REL_KEY from its prefix cleanup.
 refreshRelationship();
