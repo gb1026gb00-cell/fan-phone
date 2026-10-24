@@ -150,6 +150,12 @@
  <nav class="kakao-tabs" aria-label="카카오톡 메뉴"><button type="button" data-kakao-tab="friends" aria-selected="true"><span class="tab-icon">♟</span>친구</button><button type="button" data-kakao-tab="chats" aria-selected="false"><span class="tab-icon">▤</span>채팅</button><button type="button" data-kakao-tab="more" aria-selected="false"><span class="tab-icon">•••</span>더보기</button></nav>
  </section>
 <section class="screen panel kakao-chat" id="chat"><div class="toolbar chat-header"><button class="back" onclick="show('messages')">‹ 목록</button><span class="avatar">산</span><h2>최산</h2></div><p class="chat-caption">팬픽용 가상 대화 · 실제 인물의 메시지가 아닙니다</p><p class="ai-state" id="aiState">AI 연결 준비 완료</p><div class="chatlog" id="chatlog"><div class="chat-day">가상 AI 대화 · 새로운 대화를 시작해 보세요</div></div><form class="composer" id="chatForm"><input id="msg" placeholder="정우영으로 메시지 보내기" autocomplete="off" maxlength="1000"><button type="submit" id="sendBtn">↑</button></form></section>
+<section class="screen readonly-chat" id="san-story-chat">
+ <div class="toolbar"><button class="back" type="button" id="san-story-back">‹ 채팅</button><h2 style="margin:0;font-size:17px">최산 · 우리의 기록 💌</h2></div>
+ <p class="chat-caption" style="color:#455666">팬메이드 자동 스토리 대화 · AI 자유 채팅과 별도로 저장됩니다.</p>
+ <div class="chatlog" id="san-story-log" aria-live="polite"></div>
+ <div class="read-only-label">💗 이벤트를 발견하면 메시지가 이곳에 쌓여요 · 자유 입력 없음</div>
+</section>
 <section class="screen readonly-chat" id="member-chat">
  <div class="toolbar"><button class="back" onclick="backToChats()">‹ 채팅</button><h2 id="member-chat-title" style="margin:0;font-size:17px">멤버</h2></div>
  <p class="chat-caption" style="color:#455666">팬메이드로 작성된 가상 대화 · 실제 메시지가 아닙니다</p>
@@ -1336,7 +1342,144 @@ show=function(id){
 };
 refreshLoveYears();refreshLoveYearsExtras();
 
+
+// ===== 카카오톡: AI와 분리된 '최산 · 우리의 기록' 자동 스토리 채팅 =====
+// 독자의 브라우저에만 저장. 기존 출석/권태기/엔딩 해금에는 영향을 주지 않음.
+const SAN_STORY_KEY='fanphone-san-story-room-v1';
+const SAN_GIFTS_KEY='fanphone-san-gifts-v1';
+let sanStoryMessages=[],sanGifts={};
+try{const a=JSON.parse(localStorage.getItem(SAN_STORY_KEY)||'[]');if(Array.isArray(a))sanStoryMessages=a.filter(x=>x&&['san','me','system'].includes(x.who)&&typeof x.text==='string').slice(-180);}catch{}
+try{const a=JSON.parse(localStorage.getItem(SAN_GIFTS_KEY)||'{}');if(a&&typeof a==='object'&&!Array.isArray(a))sanGifts=a;}catch{}
+function saveSanStory(){try{localStorage.setItem(SAN_STORY_KEY,JSON.stringify(sanStoryMessages.slice(-180)));}catch{}}
+function sanStoryAdd(who,text,tag){
+ if(tag&&sanStoryMessages.some(m=>m.tag===tag))return;
+ sanStoryMessages.push({who,text,tag:tag||null});saveSanStory();renderSanStory();
+}
+function renderSanStory(){
+ const area=document.getElementById('san-story-log');area.replaceChildren();
+ if(!sanStoryMessages.length){const p=document.createElement('p');p.className='muted';p.style.cssText='text-align:center;margin:40px 15px;line-height:2';p.textContent='아직 도착한 이야기가 없어요.\n연애 기록과 선물 이벤트를 발견하면 이곳에 메시지가 쌓입니다.';area.appendChild(p);return;}
+ for(const item of sanStoryMessages){
+  if(item.who==='system'){const p=document.createElement('p');p.className='chat-day';p.textContent=item.text;area.appendChild(p);continue;}
+  const mine=item.who==='me',row=document.createElement('div');row.className='chat-message'+(mine?' me':'');
+  const bubble=document.createElement('div');bubble.className='bubble'+(mine?' me':'');bubble.textContent=item.text;
+  if(mine)row.append(bubble,avatar('정우영',true));else row.append(avatar('최산'),bubble);
+  area.appendChild(row);
+ }
+ area.scrollTop=area.scrollHeight;
+}
+const sanStoryRoomRow=conversationRow('최산 · 우리의 기록 💌','연애의 특별한 순간을 모아 두는 채팅방','기록');
+sanStoryRoomRow.querySelector('button').onclick=()=>{renderSanStory();show('san-story-chat');};
+conversationList.insertBefore(sanStoryRoomRow,conversationList.children[1]||null);
+document.getElementById('san-story-back').onclick=backToChats;
+function sanStoryRefreshPreview(){
+ const preview=sanStoryRoomRow.querySelector('.preview-line');
+ if(preview&&sanStoryMessages.length){const last=sanStoryMessages.at(-1);preview.textContent=last.text.slice(0,32);}
+}
+const sanStoryOldAdd=sanStoryAdd;
+sanStoryAdd=function(...args){sanStoryOldAdd(...args);sanStoryRefreshPreview();};
+sanStoryRefreshPreview();
+// 선물: 3년 차 꽃다발, 5년 차 케이크, 7년 차 산이가 먼저 주는 꽃다발.
+const sanGiftEvents={
+ 3:{icon:'💐',title:'산이에게 꽃다발 선물하기',offer:'💐 꽃다발을 발견했습니다.\n최산에게 선물하시겠습니까?',action:'💐 최산에게 선물하기',mine:'💐 꽃다발을 선물했습니다.',replies:['정우영 ㅋㅋㅋㅋ','뭐야 꽃은 갑자기','나 주는 거야?','아 진짜 귀엽네','고마워 사랑해 ❤️']},
+ 5:{icon:'🎂',title:'산이에게 케이크 선물하기',offer:'🎂 기념일 케이크를 준비했습니다.\n최산에게 선물하시겠습니까?',action:'🎂 최산에게 선물하기',mine:'🎂 케이크를 선물했습니다.',replies:['우영아 ㅋㅋ','이거 나 주려고 준비한 거야?','너 진짜 이런 거 잘 챙긴다','고마워. 같이 먹자 ♡']},
+ 7:{icon:'💐',title:'산이의 7주년 꽃다발',offer:'💐 최산님이 꽃다발을 선물하셨습니다.\n받으시겠습니까?',action:'💗 선물 받기',mine:'💐 최산님의 꽃다발을 받았습니다.',replies:['정우영 ㅋㅋㅋ','꽃 받았어?','우리 벌써 7년이래','진짜 오래 만났다 그치','앞으로도 잘 부탁해','사랑해 ❤️'],choices:[['love','나도 사랑해 ♡',['ㅋㅋㅋㅋ','앞으로도 계속 같이 있자']],['thanks','꽃 너무 예쁘다. 고마워.',['너 좋아할 줄 알았어 ㅋㅋ','다음에는 더 예쁜 거 사 줄게']]]}
+};
+const sanGiftOverlay=document.createElement('div');sanGiftOverlay.className='rel-overlay';sanGiftOverlay.id='san-gift-overlay';
+sanGiftOverlay.setAttribute('role','dialog');sanGiftOverlay.setAttribute('aria-modal','true');
+const sanGiftBox=document.createElement('div');sanGiftBox.className='rel-phone';sanGiftBox.style.cssText='max-width:380px;padding:22px 12px;max-height:85%;overflow:auto';
+const sanGiftHeading=document.createElement('h2'),sanGiftText=document.createElement('p'),sanGiftActions=document.createElement('div');
+sanGiftText.style.cssText='white-space:pre-line;line-height:2;margin:24px 0';
+sanGiftBox.append(sanGiftHeading,sanGiftText,sanGiftActions);sanGiftOverlay.appendChild(sanGiftBox);
+document.querySelector('.phone')?.appendChild(sanGiftOverlay);
+let sanGiftCurrent=0;
+function sanGiftButton(label,callback){const b=document.createElement('button');b.type='button';b.className='rel-choice';b.textContent=label;b.addEventListener('click',callback);sanGiftActions.appendChild(b);}
+function sanGiftClose(){sanGiftOverlay.classList.remove('visible');}
+function sanGiftOpen(year){
+ if(loveYearsCount()<year||!sanGiftEvents[year])return;
+ sanGiftCurrent=year;const gift=sanGiftEvents[year];sanGiftHeading.textContent=gift.title;
+ sanGiftActions.replaceChildren();
+ if(!sanGifts[year]){
+  sanGiftText.textContent=gift.offer;
+  sanGiftButton(gift.action,()=>sanGiftAccept(year));
+  sanGiftButton('나중에 하기',sanGiftClose);
+ }else if(year===7&&!sanGifts[year].choice){
+  sanGiftText.textContent='💐 꽃다발을 받았습니다.\n산이에게 답장을 보내 볼까요?';
+  for(const [key,label] of gift.choices)sanGiftButton(label,()=>sanGiftReply(year,key));
+  sanGiftButton('나중에 답장하기',sanGiftClose);
+ }else{
+  sanGiftText.textContent='♡ 이미 완료한 선물 이벤트입니다.\n「최산 · 우리의 기록」에서 메시지를 다시 볼 수 있어요.';
+  sanGiftButton('💌 자동 채팅방 보기',()=>{sanGiftClose();renderSanStory();show('san-story-chat');});
+ }
+ sanGiftOverlay.classList.add('visible');
+}
+function sanGiftAccept(year){
+ if(sanGifts[year]||loveYearsCount()<year)return;
+ const gift=sanGiftEvents[year];sanGifts[year]={accepted:true};
+ try{localStorage.setItem(SAN_GIFTS_KEY,JSON.stringify(sanGifts));}catch{}
+ sanStoryAdd('system',year+'년 차 · '+gift.title,'gift-'+year+'-day');
+ sanStoryAdd('me',gift.mine,'gift-'+year+'-mine');
+ gift.replies.forEach((line,i)=>sanStoryAdd('san',line,'gift-'+year+'-reply-'+i));
+ sanGiftOpen(year);
+}
+function sanGiftReply(year,key){
+ if(year!==7||!sanGifts[year]||sanGifts[year].choice)return;
+ const opt=sanGiftEvents[year].choices.find(x=>x[0]===key);if(!opt)return;
+ sanGifts[year].choice=key;
+ try{localStorage.setItem(SAN_GIFTS_KEY,JSON.stringify(sanGifts));}catch{}
+ sanStoryAdd('me',opt[1],'gift-7-choice');
+ opt[2].forEach((line,i)=>sanStoryAdd('san',line,'gift-7-choice-reply-'+i));
+ sanGiftClose();renderSanStory();show('san-story-chat');
+}
+sanGiftOverlay.addEventListener('click',e=>{if(e.target===sanGiftOverlay)sanGiftClose();});
+// 캘린더 가상 출석 날짜에 선물 일정 표시. 기존 일정 및 4년 차 여행 기록 유지.
+const sanGiftPreviousRenderCalendar=renderCalendar;
+renderCalendar=function(){
+ sanGiftPreviousRenderCalendar();
+ const dates=[...new Set(rel.dates||[])].sort();
+ for(const year of [3,5,7]){
+  if(loveYearsCount()<year)continue;
+  const day=dates[year-1]&&fictionalDay(dates[year-1]);if(!day)continue;
+  const num=Number(day.slice(-2));
+  if(calendarKey(num)===day){
+   for(const btn of document.querySelectorAll('#calendar-grid .calendar-day')){
+    if(Number(btn.firstChild?.textContent)===num){const badge=document.createElement('span');badge.className='rel-badge';badge.textContent=sanGiftEvents[year].icon;btn.appendChild(badge);break;}
+   }
+  }
+  if(calSelected===day){
+   const b=document.createElement('button');b.type='button';b.className='rel-choice';
+   b.textContent=sanGiftEvents[year].icon+' '+sanGiftEvents[year].title+(sanGifts[year]?' · 완료':' · 발견');
+   b.addEventListener('click',()=>sanGiftOpen(year));document.getElementById('calendar-detail').appendChild(b);
+  }
+ }
+};
+// 연애 1년 차 / 5년 차의 선택형 메시지 및 권태기 미연시 대사는 AI 방이 아닌 자동 방에 기록.
+function sanStorySyncChoices(){
+ for(const year of [1,5]){
+  const scene=loveYearsScenes[year-1],key=loveYearsChoices[year];
+  if(!key||!scene.options)continue;
+  const choice=scene.options.find(x=>x[0]===key);if(!choice)continue;
+  sanStoryAdd('system',year+'년 차 · '+scene.title,'year-'+year+'-title');
+  sanStoryAdd('san',scene.story.replace(/^🐱 산: /gm,'').trim(),'year-'+year+'-intro');
+  sanStoryAdd('me',choice[1],'year-'+year+'-choice');
+  sanStoryAdd('san',choice[2].replace(/^🐱 산: /gm,'').trim(),'year-'+year+'-response');
+ }
+ for(const week of [1,2,3]){
+  const key=vn[week],event=vnEvents[week];if(!key||!event)continue;
+  const choice=event.options.find(x=>x[0]===key);if(!choice)continue;
+  sanStoryAdd('system','권태기 '+week+'주 차 · '+event.title,'burnout-'+week+'-title');
+  sanStoryAdd('me',choice[1],'burnout-'+week+'-choice');
+  sanStoryAdd('san',choice[2].replace(/^🐱 산: /gm,'').trim(),'burnout-'+week+'-reply');
+ }
+}
+const sanStoryOriginalSaveLoveYears=saveLoveYears;
+saveLoveYears=function(){sanStoryOriginalSaveLoveYears();sanStorySyncChoices();};
+const sanStoryOriginalVnSave=vnSave;
+vnSave=function(){sanStoryOriginalVnSave();sanStorySyncChoices();};
+sanStorySyncChoices();
+// 선물/자동 대화는 해금 필수 조건이 아니며, 기존 AI 채팅 및 출석 처리를 건드리지 않습니다.
+
 </script>
 </body>
 </html>
+⋮⋮⋮⋮
 ⋮⋮⋮⋮
