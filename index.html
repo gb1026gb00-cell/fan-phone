@@ -219,9 +219,9 @@
 </main>
 
 <!-- 추가 이벤트 전용 화면: 기존 화면과 저장 데이터는 변경하지 않습니다. -->
-<section class="screen panel" id="sweet-extra-call" style="background:linear-gradient(160deg,#35475d,#121520);text-align:center;padding-top:105px">
+<section class="screen panel" id="sweet-extra-call" style="background:linear-gradient(160deg,#35475d,#121520);text-align:center;padding:80px 18px 30px;overflow:auto">
  <div style="font-size:56px">📞</div><h1>최산 ❤️</h1><p style="color:#bfc9d5">통화 중 · 팬메이드 가상 통화</p>
- <div id="sweet-extra-call-lines" style="white-space:pre-wrap;line-height:2.15;font-size:17px;text-align:left;background:#ffffff13;border-radius:20px;padding:22px;margin:35px 0"></div>
+ <div id="sweet-extra-call-lines" style="white-space:pre-wrap;line-height:1.75;font-size:15px;text-align:left;background:#ffffff13;border-radius:20px;padding:18px;margin:24px 0;max-height:48%;overflow:auto"></div>
  <button type="button" id="sweet-extra-call-end" class="story-button">통화 종료</button>
 </section>
 <section class="screen panel" id="sweet-extra-memory" style="background:#11131b;text-align:center">
@@ -316,6 +316,12 @@ function kakaoTab(tab){
  document.querySelectorAll('[data-kakao-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.kakaoTab===tab)));
 }
 document.querySelectorAll('[data-kakao-tab]').forEach(b=>b.addEventListener('click',()=>kakaoTab(b.dataset.kakaoTab)));
+// 추가 이벤트 화면은 팬폰 프레임 안에서만 렌더링되도록 이동합니다.
+for(const id of ['sweet-extra-call','sweet-extra-memory']){
+ const panel=document.getElementById(id);
+ const phone=document.querySelector('.phone');
+ if(panel&&phone&&panel.parentElement!==phone)phone.appendChild(panel);
+}
 const screens=[...document.querySelectorAll('.screen')];
 function show(id){if(id!=='secret-ending'&&typeof stopSecretTyping==='function')stopSecretTyping();if(id!=='voice-detail'&&typeof pauseVoice==='function')pauseVoice();screens.forEach(s=>s.classList.toggle('active',s.id===id));if(id==='pin')document.getElementById('password').focus();if(id==='safari')markSecret('safari');}
 function unlock(){const ok=document.getElementById('password').value==='0710';document.getElementById('pinerror').textContent=ok?'':'비밀번호가 달라요';if(ok)show('home');}
@@ -1928,4 +1934,5 @@ setTimeout(()=>{if(document.getElementById('home').classList.contains('active'))
 </script>
 </body>
 </html>
+⋮⋮⋮⋮
 ⋮⋮⋮⋮
