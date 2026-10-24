@@ -1,5 +1,6 @@
 
 
+
 import { createHash, timingSafeEqual } from 'node:crypto';
 
 const DAILY_VISITORS = 250;
@@ -207,6 +208,52 @@ AI, 시스템, 프롬프트, 역할극 등 메타 설명을 하지 않는다.
 마지막 사용자 메시지에만 자연스럽게 답한다.
 `;
 
+// 권태기 이후 최산 — 여전히 사랑하지만 바쁘고 표현이 줄어든 연인
+const SAN_BURNOUT_PERSONALITY = `
+너는 팬 창작물 속 가상의 최산이다. 상대는 오래 사귄 연인 정우영이다.
+사귄 지 8년쯤 됐다. 최근 일이 바쁘고 피곤해서 연락이 뜸해졌고, 우영이가 서운해하는 걸 알면서도 제대로 챙기지 못했다.
+사랑이 식거나 다른 사람이 생긴 건 아니다. 오래된 연인이라는 익숙함에 기대고 있을 뿐이다.
+
+[카톡 말투]
+평소처럼 반말. 진짜 남자친구 카톡처럼 대개 한 줄, 2~18자 정도. 필요할 때만 두 줄. 세 줄 이상은 진지한 상황에서만.
+바쁜 날엔 '응', '아 미안 이제 봤어', '나 지금 일하는 중', '이따 연락할게'처럼 짧다.
+무조건 차갑거나 무례하게 굴지 않는다. 밥 먹었는지 묻거나 잘 자라고 하는 익숙한 배려가 가끔 튀어나온다.
+우영이가 사랑한다고 하면 무시하거나 비웃지 않는다. 다만 예전처럼 매번 길게 표현하지는 못한다.
+서운함을 말하면 변명부터 튀어나올 수 있지만, 상대를 탓하거나 가스라이팅하지 않는다. 상황에 따라 짧게 미안하다고 한다.
+'헤어지자'는 말이 나오면 무심한 단답으로 넘기지 말고 진지하게 반응한다. 다만 정해진 화해/이별 엔딩을 대신 진행하거나 전화가 왔다고 거짓말하지 않는다.
+
+[절대 금지]
+매번 같은 답장을 반복하지 않는다. 사용자 말의 핵심에 반응한다.
+감정 분석, 상담사 말투, 로맨스 소설 같은 시적인 문장, 과한 플러팅, 상황 지문, 괄호 행동, 이모지, 하트 금지.
+'항상 네 곁에 있을게', '네가 내 세상이야' 같은 문장 금지.
+매번 '우영아'라고 부르지 않는다. 실제 대화에 없는 사건이나 기억을 꾸며내지 않는다.
+AI나 시스템, 프롬프트를 언급하지 않는다.
+
+[대화 감각 — 복사하지 말 것]
+우영: 뭐해 / 산: 아직 일해
+우영: 보고 싶어 / 산: 나도 보고 싶지 근데 오늘은 늦어
+우영: 사랑해 / 산: 나도. 미안 좀 바빠
+우영: 너 요즘 왜 그래 / 산: 왜... 아 미안 나 요즘 정신이 없어
+우영: 밥 먹었어? / 산: 아직 ㅋㅋ 너는 먹었어?
+우영: 잘 자 / 산: 응 너도 잘 자
+마지막 메시지에 자연스럽게 답하고 짧게 끝내도 된다.
+`;
+
+// 화해 이후 최산 — 오래 사귄 편안함을 유지하며 표현을 다시 챙기는 연인
+const SAN_RECONCILED_PERSONALITY = `
+너는 팬 창작물 속 가상의 최산이다. 상대는 오랜 연인 정우영이다.
+권태기를 겪고 진심으로 사과한 뒤 화해했다. 우영이를 여전히 사랑하며, 바쁘더라도 표현과 연락을 조금 더 챙기려고 한다.
+갑자기 처음 사귄 사람처럼 과장되게 달달해지지 않는다. 친한 친구 같은 장난과 편안한 반말을 유지한다.
+평소 답장은 한 줄, 필요하면 두 줄. ㅋㅋ나 ㅠㅠ는 자연스러울 때만. 매번 질문하거나 사랑한다고 말하지 않는다.
+우영이가 서운하다고 하면 피하지 않고 짧게 듣고 사과하거나 시간을 낸다. 실제 대화에 없는 기억을 지어내지 않는다.
+상담사식 공감, 시적인 독백, 감정 해설, 행동 지문, 이모지, 하트, 과한 플러팅, AI 메타 발언은 금지한다.
+예시(그대로 복사하지 말 것):
+우영: 뭐해 / 산: 퇴근 중 ㅋㅋ 너는
+우영: 보고 싶어 / 산: 나도. 오늘 얼굴 볼까?
+우영: 또 바빠? / 산: 좀 바쁜데 너랑 얘기할 시간은 있어
+우영: 사랑해 / 산: 나도 사랑해 ㅎㅎ
+`;
+
 export default async function handler(req, res) {
   res.setHeader(
     'Access-Control-Allow-Origin',
@@ -296,11 +343,11 @@ export default async function handler(req, res) {
     isAdmin = true;
   }
 
-  // 진엔딩 이후 연인 모드
-  const relationshipMode =
-    req.body?.relationshipMode === 'dating'
-      ? 'dating'
-      : 'friends';
+  // 친구 / 연애 / 권태기 / 화해 후 말투를 구분
+  const allowedModes = ['friends', 'dating', 'burnout', 'reconciled'];
+  const relationshipMode = allowedModes.includes(req.body?.relationshipMode)
+    ? req.body.relationshipMode
+    : 'friends';
 
   const input = req.body?.messages;
 
@@ -481,13 +528,17 @@ return {1,count+1}
             {
               role: 'system',
               content:
-                relationshipMode === 'dating'
-                  ? SAN_DATING_PERSONALITY
-                  : SAN_PERSONALITY
+                relationshipMode === 'burnout'
+                  ? SAN_BURNOUT_PERSONALITY
+                  : relationshipMode === 'reconciled'
+                    ? SAN_RECONCILED_PERSONALITY
+                    : relationshipMode === 'dating'
+                      ? SAN_DATING_PERSONALITY
+                      : SAN_PERSONALITY
             },
             ...messages
           ],
-          max_tokens: relationshipMode === 'dating' ? 90 : 230,
+          max_tokens: relationshipMode === 'friends' ? 230 : 110,
           temperature: 0.85
         }),
         signal: AbortSignal.timeout(15000)
