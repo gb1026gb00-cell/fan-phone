@@ -527,7 +527,7 @@ function markSecret(clue){
 }
 function stopSecretTyping(){if(secretTimer!==null){clearInterval(secretTimer);secretTimer=null;}}
 function openSecretEnding(){
- if(!secretProgress.unlocked && !(typeof endingCollection!=='undefined' && (endingCollection.trueEnd||endingCollection.badEnd)))return;
+ if(!secretProgress.unlocked)return;
  document.getElementById('secret-toast').classList.remove('visible');
  stopSecretTyping();show('secret-ending');
  const target=document.getElementById('secret-letter'),after=document.getElementById('secret-after'),response=document.getElementById('secret-response');
@@ -608,7 +608,7 @@ renderCalendar=function(){originalRenderCalendar();if(story.callFinished&&calYea
 function markStoryClue(which){if(!story.callFinished)return;story['clue_'+which]=true;saveStory();refreshStoryUI();if(['note','calls','calendar'].every(k=>story['clue_'+k])){story.trueUnlocked=true;saveStory();refreshStoryUI();setTimeout(()=>{if(confirm('💗 새로운 엔딩이 열렸습니다.\n지금 확인할까요?'))openTrueEnding();},500);}}
 function refreshStoryUI(){document.getElementById('replay-call').style.display=story.called?'inline-block':'none';document.getElementById('replay-true').style.display=story.trueUnlocked?'inline-block':'none';extraNoteButton.style.display=story.callFinished?'block':'none';extraCall.style.display=story.callFinished?'flex':'none';}
 const trueLetter=`문밖에는 정말로 최산이 서 있었다.\n\n우영은 손잡이를 잡은 채 한참 동안 아무 말도 하지 못했다. 문 앞의 산은 조금 숨이 차 있었고, 이상하게도 우영보다 더 긴장한 얼굴이었다.\n\n“너 진짜 왔어?”\n\n“문 열어 보라니까 진짜 열어 주네.”\n\n“장난치지 마. 나 지금 심장 터질 것 같으니까.”\n\n산이 웃었다. 우영이 가장 좋아하는 얼굴로.\n\n“나도.”\n\n그 짧은 두 글자에 우영은 그동안 혼자 삼켰던 말들을 전부 들킨 기분이 들었다. 산이 한 걸음 다가왔다.\n\n“우영아, 우리 이제 안 숨기면 안 돼?”\n\n“...뭘?”\n\n“서로 좋아하는 거.”\n\n우영이 대답 대신 산의 손을 잡았다. 손끝이 따뜻했다.\n\n“응. 안 숨길래.”\n\n그날 밤, 정우영의 휴대폰에는 더 이상 보내지 못한 고백이 남지 않았다.\n\n대신 내일 같이 밥 먹자는 메시지가 하나 도착했다.\n\n최산: 내일도 보자.\n정우영: 내일만?\n최산: 그럼 매일. ♡`;
-function openTrueEnding(){if(!story.trueUnlocked && !(typeof endingCollection!=='undefined' && endingCollection.trueEnd))return;document.getElementById('true-ending-letter').textContent=trueLetter;show('story-final');}
+function openTrueEnding(){if(!story.trueUnlocked)return;document.getElementById('true-ending-letter').textContent=trueLetter;show('story-final');}
 document.getElementById('replay-true').onclick=openTrueEnding;
 document.getElementById('true-ending-close').onclick=()=>show('home');
 refreshStoryUI();
@@ -1942,28 +1942,6 @@ show=function(id){
  if(id==='san-story-chat'&&extraBurnoutWeek()>=2&&!extraFlags.typingSeen)setTimeout(extraTypingScene,650);
  if(id==='home')setTimeout(()=>{if(extraBurnoutWeek()>=4)extraCheckMemory();else extraCheckLove();},500);
 };
-// 설정의 엔딩 다시보기: 1부 내부 진행 플래그와 별개로 영구 엔딩 수집 기록을 우선합니다.
-// 2부에 진입한 기존 독자도 수집한 엔딩을 다시 볼 수 있습니다.
-const endingGallerySettingsButton=document.createElement('div');
-endingGallerySettingsButton.className='card';
-endingGallerySettingsButton.innerHTML='<button class="back" type="button">🏆 엔딩 수집함 · 다시 읽기</button>';
-endingGallerySettingsButton.querySelector('button').onclick=()=>show('ending-collection');
-const settingsScreen=document.getElementById('settings');
-settingsScreen.insertBefore(endingGallerySettingsButton,settingsScreen.querySelector('.card:last-child'));
-function restoreSettingsEndingReplay(){
- const collectedTrue=!!endingCollection.trueEnd;
- const collectedBad=!!endingCollection.badEnd;
- document.getElementById('replay-ending').style.display=(secretProgress.unlocked||collectedTrue||collectedBad)?'inline-block':'none';
- document.getElementById('replay-true').style.display=(story.trueUnlocked||collectedTrue)?'inline-block':'none';
- document.getElementById('replay-call').style.display=story.called?'inline-block':'none';
- endingGallerySettingsButton.style.display=(collectedTrue||collectedBad)?'block':'none';
-}
-const showBeforeEndingReplayRestore=show;
-show=function(id){
- if(id==='settings')restoreSettingsEndingReplay();
- showBeforeEndingReplayRestore(id);
-};
-restoreSettingsEndingReplay();
 extraRefresh();
 setTimeout(()=>{if(document.getElementById('home').classList.contains('active')){if(extraBurnoutWeek()>=4)extraCheckMemory();else extraCheckLove();}},1800);
 
