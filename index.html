@@ -1683,7 +1683,7 @@ function sweetMessages(lines,tag){
  if(!sweetDating())return;
  sanStoryAdd('system','최산 · 새 메시지',tag+'-heading');
  lines.forEach((line,i)=>sanStoryAdd('san',line,tag+'-'+i));
- sweetToast('💬 최산 · 새 메시지가 도착했어요',()=>show('san-story'));
+ sweetToast('💬 최산 · 새 메시지가 도착했어요',()=>{renderSanStory();show('san-story-chat');});
 }
 // 매 연차 첫 방문에만 산이가 먼저 보내는 메시지. 별도의 기존 출석 계산을 수정하지 않습니다.
 const SWEET_YEAR_LINES={
@@ -1713,7 +1713,7 @@ function sweetCheckYear(){
  }
  if(newYears.length){
   const label=newYears.length===1?'💬 최산 · 새 메시지가 도착했어요':'💬 최산 · 놓쳤던 선톡 '+newYears.length+'개 연차가 도착했어요';
-  sweetToast(label,()=>show('san-story'));
+  sweetToast(label,()=>{renderSanStory();show('san-story-chat');});
  }
 }
 // 연락처 화면: 실제 기존 연락처 앱이 없으므로 전화 화면 안에 '저장된 이름' 항목을 추가합니다.
