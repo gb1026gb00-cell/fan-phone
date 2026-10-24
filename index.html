@@ -1478,8 +1478,147 @@ vnSave=function(){sanStoryOriginalVnSave();sanStorySyncChoices();};
 sanStorySyncChoices();
 // 선물/자동 대화는 해금 필수 조건이 아니며, 기존 AI 채팅 및 출석 처리를 건드리지 않습니다.
 
+
+
+// ===== 기존 앱 히든 상호작용 12종 (사진/신규 앱 없이) =====
+const HIDDEN_EVENTS_KEY='fanphone-hidden-events-v1';
+let hiddenEvents={};
+try{const v=JSON.parse(localStorage.getItem(HIDDEN_EVENTS_KEY)||'{}');if(v&&typeof v==='object'&&!Array.isArray(v))hiddenEvents=v;}catch{}
+function saveHiddenEvents(){try{localStorage.setItem(HIDDEN_EVENTS_KEY,JSON.stringify(hiddenEvents));}catch{}}
+function hiddenDone(id){return !!hiddenEvents[id];}
+function hiddenSave(id,data){hiddenEvents[id]=data;saveHiddenEvents();}
+const hiddenOverlay=document.createElement('div');hiddenOverlay.className='rel-overlay';hiddenOverlay.setAttribute('role','dialog');hiddenOverlay.setAttribute('aria-modal','true');
+const hiddenBox=document.createElement('div');hiddenBox.className='rel-phone';hiddenBox.style.cssText='max-width:380px;padding:22px 16px;max-height:85%;overflow:auto';
+const hiddenTitle=document.createElement('h2'),hiddenBody=document.createElement('p'),hiddenButtons=document.createElement('div');
+hiddenBody.style.cssText='white-space:pre-line;line-height:1.95;margin:20px 0;font-size:14px';
+hiddenBox.append(hiddenTitle,hiddenBody,hiddenButtons);hiddenOverlay.appendChild(hiddenBox);document.querySelector('.phone')?.appendChild(hiddenOverlay);
+function hiddenClose(){hiddenOverlay.classList.remove('visible');}
+hiddenOverlay.addEventListener('click',e=>{if(e.target===hiddenOverlay)hiddenClose();});
+function hiddenButton(label,fn){const b=document.createElement('button');b.type='button';b.className='rel-choice';b.textContent=label;b.onclick=fn;hiddenButtons.appendChild(b);}
+function hiddenDialog(title,body,options=[]){hiddenTitle.textContent=title;hiddenBody.textContent=body;hiddenButtons.replaceChildren();for(const [label,fn] of options)hiddenButton(label,fn);hiddenButton('닫기',hiddenClose);hiddenOverlay.classList.add('visible');}
+function hiddenStory(id,title,mine,lines){
+ sanStoryAdd('system',title,'hidden-'+id+'-day');
+ if(mine)sanStoryAdd('me',mine,'hidden-'+id+'-me');
+ lines.forEach((line,i)=>sanStoryAdd('san',line,'hidden-'+id+'-san-'+i));
+}
+function hiddenFinish(id,value,title,mine,lines){if(hiddenDone(id))return;hiddenSave(id,value);hiddenStory(id,title,mine,lines);hiddenDialog(title,'♡ 완료되었습니다.\n「최산 · 우리의 기록」에 새로운 메시지가 도착했어요.',[['💌 채팅방 확인',()=>{hiddenClose();renderSanStory();show('san-story-chat');}]]);}
+function hiddenPick(id,title,intro,options){
+ if(hiddenDone(id)){hiddenDialog(title,'이미 완료한 기록입니다.\n선택한 내용: '+hiddenEvents[id].label,[['💌 기록 확인',()=>{hiddenClose();renderSanStory();show('san-story-chat');}]]);return;}
+ hiddenDialog(title,intro,options.map(([label,mine,lines])=>[label,()=>hiddenFinish(id,{label},title,mine,lines)]));
+}
+function hiddenOpen(id){
+ const year=loveYearsCount();
+ if(id==='letter')return hiddenPick(id,'💌 산이에게 편지 쓰기','산아.\n우리가 벌써 2년이나 만났네.\n나는 네가……\n\n마지막 문장을 골라 주세요.',[
+ ['내 인생에서 가장 좋은 사람이야.','💌 편지: 내 인생에서 가장 좋은 사람이야.',['야 정우영','너 갑자기 왜 이렇게 감동시키냐','나도 사랑해 ㅋㅋㅋ']],
+ ['앞으로도 오래 함께하고 싶어.','💌 편지: 앞으로도 오래 함께하고 싶어.',['나도 오래오래 너랑 있을 거야','약속 ♡']],
+ ['생각보다 훨씬 많이 좋아.','💌 편지: 생각보다 훨씬 많이 좋아.',['생각보다? ㅋㅋㅋㅋ','나는 네가 생각하는 것보다 더 좋아']]]);
+ if(id==='date')return hiddenPick(id,'📅 산이랑 데이트','이번 데이트는 어디로 갈까요?\n선택한 장소가 캘린더에도 저장됩니다.',[
+ ['🎡 놀이공원','🎡 우리 놀이공원 가자!',['ㅋㅋㅋㅋ 너 롤러코스터 탈 수 있냐?','내 손 꼭 잡아']],
+ ['🌊 바다','🌊 우리 바다 보러 가자!',['바다 좋지','우리 손잡고 걷자']],
+ ['🏠 집 데이트','🏠 우리 집에서 놀자!',['그럼 오늘 하루 종일 붙어 있자 ㅋㅋ']]]);
+ if(id==='shopping')return hiddenPick(id,'🌐 산이의 선물 취향','검색 기록: 남자친구 기념일 선물 추천\n\n산이에게 어떤 선물을 고를까요?',[
+ ['🎁 향수','🎁 향수를 선물했습니다.',['헐 정우영','이거 내가 갖고 싶다고 했던 거잖아','너 그거 기억하고 있었어?']],
+ ['🧣 목도리','🧣 목도리를 선물했습니다.',['와 이거 진짜 따뜻하다','겨울마다 하고 다닐게 ♡']]]);
+ if(id==='wake')return hiddenPick(id,'📞 산이 깨우기','📞 최산 · 연결 중……\n\n산: ……여보세요.\n산: 우영아……?\n산: 지금 몇 시야……\n산: 5분만 더……',[
+ ['일어나!! 지각해!!','📞 일어나!! 지각해!!',['아아아 알았어 ㅠㅠ','덕분에 안 늦겠다']],
+ ['5분만 더 자 ♡','📞 5분만 더 자 ♡',['ㅋㅋㅋ 사랑해……','근데 너도 같이 자면 안 돼?']]]);
+ if(id==='bucket'){
+ const items=['같이 여행 가기','커플 잠옷 맞추기','밤새 영화 보기','같이 요리하기','눈 오는 날 산책하기'];
+ const checked=hiddenEvents.bucket?.checked||[];
+ hiddenDialog('📝 산이랑 하고 싶은 것들','해 보고 싶은 항목을 체크해 주세요.\n완료한 항목은 저장됩니다.');
+ hiddenButtons.replaceChildren();
+ items.forEach((item,i)=>hiddenButton((checked.includes(i)?'☑ ':'☐ ')+item,()=>{
+  const current=hiddenEvents.bucket?.checked||[];
+  if(!current.includes(i)){
+   const next=[...current,i];hiddenSave('bucket',{checked:next,label:next.map(n=>items[n]).join(', ')});
+   sanStoryAdd('system','3년 차 · 둘만의 버킷리스트','hidden-bucket-day');
+   sanStoryAdd('me','☑ '+item,'hidden-bucket-'+i+'-me');
+   sanStoryAdd('san',['야 우리 이거 언제 하냐 ㅋㅋ','이번 주말에 하자'][0],'hidden-bucket-'+i+'-san');
+  }
+  hiddenOpen('bucket');
+ }));hiddenButton('닫기',hiddenClose);return;
+ }
+ if(id==='balance')return hiddenPick(id,'💬 산이의 밸런스 게임','산: 정우영 심심해\n산: 밸런스 게임 하자 ㅋㅋ\n\n둘 중 하나만 고르기!',[
+ ['평생 같이 여행 다니기','평생 너랑 여행 다닐래!',['ㅋㅋㅋㅋㅋ','근데 난 둘 다 좋은데','너랑 하는 거면 다 좋음']],
+ ['평생 같이 집에서 놀기','평생 너랑 집에서 놀래!',['집이 최고지 ㅋㅋ','근데 난 너랑 여행 가는 것도 좋아']]]);
+ if(id==='compat'){
+ if(hiddenDone(id)){hiddenDialog('🌐 연애 궁합 테스트','💗 최산 × 정우영 궁합 99%\n\n서로 다른 점이 많지만 함께 있을 때 가장 편안한 사이입니다.');return;}
+ const questions=[['데이트 취향은?',['집에서 쉬기','밖으로 놀러 가기']],['다투면 먼저 하는 일은?',['대화하기','시간 갖기']],['가장 좋은 순간은?',['함께 웃을 때','나란히 걸을 때']]];
+ const answers=[];
+ function step(i){if(i===questions.length){hiddenSave(id,{label:answers.join(' / ')});hiddenStory(id,'4년 차 · 연애 궁합 테스트','💗 우리 궁합 99% 나왔어!',['99퍼?','나머지 1퍼는 뭔데','다시 해 100퍼 나올 때까지 ㅋㅋㅋ']);hiddenDialog('💗 궁합 99%','서로 다른 점이 많지만, 함께 있을 때 가장 편안한 사이입니다.\n\n결과가 자동 채팅방에 공유되었습니다.');return;}
+ hiddenDialog('🌐 연애 궁합 테스트',`${i+1}/3 · ${questions[i][0]}`,questions[i][1].map(a=>[a,()=>{answers.push(a);step(i+1);} ]));}
+ step(0);return;
+ }
+ if(id==='anniversary')return hiddenPick(id,'📅 우리만의 기념일','어떤 날을 기념일로 남길까요?',[
+ ['처음 손잡은 날','💗 처음 손잡은 날을 기념일로 저장했어.',['ㅋㅋㅋ 그날 나 진짜 떨렸는데','아직도 기억나']],
+ ['처음 사랑한다고 말한 날','💗 처음 사랑한다고 말한 날을 기념일로 저장했어.',['나 그날 밤에 잠도 못 잤잖아 ㅋㅋ']],
+ ['처음 같이 잠든 날','💗 처음 같이 잠든 날을 기념일로 저장했어.',['그날 너 잠꼬대했던 거 기억나? ㅋㅋ']]]);
+ if(id==='reasons'){
+ const options=['웃는 얼굴','다정한 성격','장난치는 모습','진지할 때의 표정','나를 바라보는 눈빛','함께 있으면 편안한 점'];
+ if(hiddenDone(id)){hiddenDialog('📝 내가 최산을 좋아하는 이유','고른 이유 세 가지:\n'+hiddenEvents[id].label);return;}
+ const selected=[];
+ function step(){hiddenDialog('📝 내가 최산을 좋아하는 이유','좋아하는 이유 세 가지를 골라 주세요. ('+selected.length+'/3)\n'+selected.map(i=>'✓ '+options[i]).join('\n'));
+ hiddenButtons.replaceChildren();options.forEach((x,i)=>{if(!selected.includes(i))hiddenButton(x,()=>{selected.push(i);if(selected.length===3){const label=selected.map(j=>options[j]).join(', ');hiddenSave(id,{label});hiddenStory(id,'6년 차 · 좋아하는 이유','네가 좋은 이유: '+label,['야 너 나 뭐가 그렇게 좋냐고 물어봤더니','이렇게 진지하게 말해 주면 어떡해 ㅋㅋ','나도 네가 너무 좋아']);hiddenDialog('📝 메모 완성','좋아하는 이유 세 가지가 저장되었습니다.\n산이의 답장이 도착했어요.');}else step();});});hiddenButton('닫기',hiddenClose);}
+ step();return;
+ }
+ if(id==='latecall')return hiddenPick(id,'📞 끊지 못한 통화','📞 최산 · 통화 중\n\n산: 우영아.\n산: 나 이제 자야겠다.\n산: 잘 자.\n\n……그런데 통화가 끊기지 않는다.',[
+ ['왜 안 끊어?','📞 왜 안 끊어?',['네가 먼저 끊어 ㅋㅋ','조금만 더 듣고 있을래']],
+ ['나도 안 끊을 건데?','📞 나도 안 끊을 건데?',['그럼 우리 밤새 통화하자','좋아해 우영아']]]);
+ if(id==='sadnote')return hiddenPick(id,'🥀 삭제할까요?','산이한테 서운했던 것들.\n\n하나씩 적다 보니 너무 많아졌다.\n\n근데 지우려니까 그것도 싫다.',[
+ ['메모 남겨 두기','📝 메모를 남겨 두었습니다.',['……우영아','언젠가는 우리 제대로 얘기하자']],
+ ['메모 삭제하기','📝 메모를 삭제했습니다.',['말하지 않아도 되는 건 아니잖아','우리 나중에 얘기하자']]]);
+ if(id==='promise'){
+ const received=!!sanGifts[7];
+ const text=received?'🐱 산: 앞으로도 잘 부탁해.\n🐱 산: 사랑해 ❤️\n\n그때는 당연히 내년에도 함께할 줄 알았다.':'7년 차의 꽃다발을 아직 받지 않았습니다.\n캘린더에서 그날의 선물을 먼저 확인할 수 있어요.';
+ if(!received){hiddenDialog('🥀 예전의 약속',text);return;}
+ if(!hiddenDone(id))hiddenSave(id,{label:'다시 읽음'});
+ hiddenDialog('🥀 예전의 약속',text);return;
+ }
+}
+const hiddenDefinitions=[
+ {id:'wake',year:1,app:'calls',label:'📞 산이에게 모닝콜 해 주기'},
+ {id:'letter',year:2,app:'notes',label:'💌 산이에게 편지 쓰기'},
+ {id:'balance',year:2,app:'messages',label:'💬 산이의 밸런스 게임'},
+ {id:'shopping',year:3,app:'safari',label:'🎁 남자친구 기념일 선물 추천'},
+ {id:'bucket',year:3,app:'notes',label:'📝 산이랑 하고 싶은 것들'},
+ {id:'date',year:4,app:'calendar',label:'📅 산이랑 데이트 장소 고르기'},
+ {id:'compat',year:4,app:'safari',label:'🌐 최산 × 정우영 연애 궁합 테스트'},
+ {id:'anniversary',year:5,app:'calendar',label:'📅 우리만의 기념일 만들기'},
+ {id:'reasons',year:6,app:'notes',label:'📝 내가 최산을 좋아하는 이유'},
+ {id:'latecall',year:6,app:'calls',label:'📞 끊지 못한 통화'},
+ {id:'sadnote',slump:2,app:'notes',label:'🥀 삭제하지 못한 메모'},
+ {id:'promise',slump:3,app:'messages',label:'🥀 7년 차의 약속 다시 읽기'}
+];
+const hiddenContainers={};
+for(const [app,parent] of Object.entries({calls:'call-list',notes:'note-list',safari:'safari-history',messages:'messages',calendar:'calendar-detail'})){
+ const c=document.createElement('div');c.id='hidden-events-'+app;c.style.cssText='margin:18px 0 24px';
+ if(app==='messages')document.getElementById(parent)?.appendChild(c);
+ else document.getElementById(parent)?.appendChild(c);
+ hiddenContainers[app]=c;
+}
+function hiddenSlumpWeeks(){return new Set(rel.postDates||[]).size;}
+function hiddenAvailable(d){return d.slump?hiddenSlumpWeeks()>=d.slump&&!!rel.modeStart:loveYearsCount()>=d.year;}
+function hiddenRender(app){
+ const c=hiddenContainers[app];if(!c)return;
+ c.replaceChildren();const unlocked=hiddenDefinitions.filter(d=>d.app===app&&hiddenAvailable(d));
+ if(!unlocked.length)return;
+ const head=document.createElement('p');head.className='muted';head.style.margin='10px 0';head.textContent='✦ 발견한 특별한 기록';c.appendChild(head);
+ unlocked.forEach(d=>{const b=document.createElement('button');b.type='button';b.className='rel-choice';b.textContent=d.label+(hiddenDone(d.id)?' · 확인함':' · NEW');b.onclick=()=>{hiddenOpen(d.id);hiddenRender(app);};c.appendChild(b);});
+ if(app==='calendar'){
+  const chosen=[['date','4년 차 · 데이트'],['anniversary','5년 차 · 기념일']];
+  chosen.forEach(([id,label])=>{if(!hiddenDone(id))return;const p=document.createElement('p');p.className='muted';p.textContent=label+': '+hiddenEvents[id].label;c.appendChild(p);});
+ }
+ if(app==='notes'&&hiddenDone('sadnote')&&rel.ending&&String(rel.ending).toLowerCase().includes('happy')){
+  const p=document.createElement('p');p.className='muted';p.textContent='📝 이제는 적어 두지 말고 직접 말해야겠다.';c.appendChild(p);
+ }
+}
+const hiddenOldShow=show;
+show=function(id){hiddenOldShow(id);if(hiddenContainers[id])hiddenRender(id);};
+const hiddenOldRenderCalendar=renderCalendar;
+renderCalendar=function(){hiddenOldRenderCalendar();hiddenContainers.calendar&&document.getElementById('calendar-detail').appendChild(hiddenContainers.calendar);hiddenRender('calendar');};
+for(const app of Object.keys(hiddenContainers))hiddenRender(app);
+
 </script>
 </body>
 </html>
-⋮⋮⋮⋮
 ⋮⋮⋮⋮
