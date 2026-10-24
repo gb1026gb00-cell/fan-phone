@@ -183,6 +183,30 @@
 <div class="rel-overlay" id="rel-incoming"><div class="rel-phone"><p class="muted">수신 전화 · 최산</p><div style="font-size:70px;margin:25px">☎</div><h1>최산</h1><p class="muted">팬메이드 가상 통화</p><button class="rel-choice" id="rel-answer">📞 전화 받기</button></div></div>
 <section class="screen bad-call-screen" id="rel-call"><p class="muted">최산 · 통화 중</p><h2>📞 최산</h2><div class="story-line" id="rel-call-line"></div><button class="story-button" id="rel-next">계속 듣기 →</button><div id="rel-choices" hidden><button class="rel-choice" data-choice="reconcile">💗 산이를 받아 준다</button><button class="rel-choice" data-choice="breakup">🥀 산이와 헤어진다</button></div><p class="story-hint">최산의 말만 들려옵니다.</p></section>
 <section class="screen bonus-call-screen" id="bonus-call"><p class="muted">히든 통화 · 최산</p><div style="font-size:54px;margin-top:25px">☎</div><h2>최산</h2><div class="story-line" id="bonus-call-line"></div><button class="story-button" id="bonus-call-next" type="button">계속 듣기 →</button><p class="muted">팬메이드 가상 통화 · 최산의 대사만 표시됩니다.</p></section>
+
+<!-- 2부 권태기: 선택형 미연시 이벤트 (편지함 기능 없음) -->
+<div class="rel-overlay" id="vn-overlay" role="dialog" aria-modal="true" aria-labelledby="vn-title">
+ <div class="rel-phone" style="max-width:390px;max-height:85%;overflow:auto;padding:14px 0">
+  <p class="muted">🥀 사랑이 익숙해지는 시간</p>
+  <h2 id="vn-title" style="margin:12px 0">오늘의 이야기</h2>
+  <p id="vn-story" style="white-space:pre-line;line-height:2;min-height:90px"></p>
+  <div id="vn-options"></div>
+  <p id="vn-result" style="white-space:pre-line;line-height:2;color:#f3dbe5" aria-live="polite"></p>
+  <button type="button" class="rel-choice" id="vn-close">나중에 보기 / 닫기</button>
+ </div>
+</div>
+
+<!-- 2부 연애 1~7년 차: 하루 한 장면씩 열리는 선택형 기록 -->
+<div class="rel-overlay" id="love-years-overlay" role="dialog" aria-modal="true" aria-labelledby="love-years-title">
+  <div class="rel-phone" style="max-width:390px;max-height:85%;overflow:auto;padding:16px 10px">
+    <p class="muted">💗 우리의 7년</p>
+    <h2 id="love-years-title" style="margin:12px 0"></h2>
+    <p id="love-years-story" style="white-space:pre-line;line-height:2;min-height:80px"></p>
+    <div id="love-years-choices"></div>
+    <p id="love-years-result" style="white-space:pre-line;line-height:2" aria-live="polite"></p>
+    <button type="button" class="rel-choice" id="love-years-close">휴대폰으로 돌아가기</button>
+  </div>
+</div>
 <div class="homebar"></div>
 </main>
 <script>
@@ -1118,6 +1142,199 @@ refreshAnniversaryCaption();
 // Story reset keeps attendance stamps and chapter 2 relationship progress.
 // The original reset routine excludes REL_KEY from its prefix cleanup.
 refreshRelationship();
+
+
+// ===== 권태기 미연시 선택 이벤트: 1~3주 차, 엔딩 해금 조건과 무관 =====
+const VN_KEY='fanphone-burnout-choices-v1';
+let vn={};try{const saved=JSON.parse(localStorage.getItem(VN_KEY)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))vn=saved;}catch{}
+function vnSave(){localStorage.setItem(VN_KEY,JSON.stringify(vn));}
+const vnEvents={
+  1:{title:'1주 차 · 서운함을 말할까?',story:'🐱 산: 우영아\n🐱 산: 오늘도 좀 늦을 거 같아\n🐱 산: 먼저 자 미안',options:[
+    ['care','알겠어. 너무 무리하지 마.','🐱 산: 응 ㅋㅋ\n🐱 산: 너도 일찍 자\n🐱 산: 사랑해'],
+    ['honest','요즘 나한테 너무 소홀한 거 아니야?','🐱 산: ……그렇게 느꼈어?\n🐱 산: 미안해 우영아\n🐱 산: 나 진짜 정신이 없었어'],
+    ['short','응. 잘 자.','🐱 산: 응 잘 자']
+  ]},
+  2:{title:'2주 차 · 늦은 밤의 전화',story:'밤늦게 최산에게 전화가 걸려 왔습니다.\n📞 최산 · 수신 중',options:[
+    ['answer','📞 전화 받기','🐱 산: 우영아.\n🐱 산: 자는 줄 알았는데 안 잤네.\n🐱 산: 그냥…… 목소리 듣고 싶어서.'],
+    ['decline','✕ 전화 거절하기','[부재중 전화 · 최산]\n🐱 산: 자나 보네\n🐱 산: 잘 자 우영아']
+  ]},
+  3:{title:'3주 차 · 전하지 못한 말',story:'메시지 입력창에 적힌 말.\n\n「산아. 나 요즘 네가 너무 멀게 느껴져.」',options:[
+    ['send','💗 메시지 전송하기','[메시지가 전송되었습니다.]\n🐱 산: 우영아\n🐱 산: 나 지금 전화해도 돼?'],
+    ['erase','🥀 메시지 지우기','[작성 중이던 메시지를 삭제했습니다.]\n그날 밤, 산이에게서 연락이 올 것만 같습니다.']
+  ]}
+};
+const vnOverlay=document.getElementById('vn-overlay');
+const vnButton=document.createElement('button');vnButton.type='button';vnButton.className='rel-choice';vnButton.id='vn-open';vnButton.textContent='🥀 이번 주 이야기 확인하기';vnButton.hidden=true;
+document.getElementById('rel-home').insertAdjacentElement('afterend',vnButton);
+function vnWeek(){return relUnlocked()&&relInBurnout()?Math.min(3,rel.postDates.length):0;}
+function vnRefresh(){const week=vnWeek();vnButton.hidden=!(week>=1&&week<=3&&!rel.ending);if(!vnButton.hidden)vnButton.textContent=vn[week]?'🥀 '+week+'주 차 선택 다시 보기':'🥀 '+week+'주 차 이야기 선택하기';}
+function vnOpen(){const week=vnWeek();if(!week||!vnEvents[week])return;const event=vnEvents[week];
+ document.getElementById('vn-title').textContent=event.title;
+ document.getElementById('vn-story').textContent=event.story;
+ const options=document.getElementById('vn-options');options.replaceChildren();
+ const result=document.getElementById('vn-result');result.textContent='';
+ const selected=vn[week];
+ for(const [key,label,response] of event.options){const button=document.createElement('button');button.type='button';button.className='rel-choice';button.textContent=label;button.disabled=!!selected;
+ button.addEventListener('click',()=>{if(vn[week])return;vn[week]=key;vnSave();vnOpen();vnRefresh();});options.appendChild(button);}
+ if(selected){const found=event.options.find(o=>o[0]===selected);if(found)result.textContent=found[2];}
+ document.getElementById('vn-close').textContent=selected?'돌아가기':'나중에 선택하기';
+ vnOverlay.classList.add('visible');
+}
+vnButton.addEventListener('click',vnOpen);
+document.getElementById('vn-close').addEventListener('click',()=>vnOverlay.classList.remove('visible'));
+// 기존 사과 전화 첫 대사에 3주 차 선택을 반영합니다. 다른 해금 조건은 그대로입니다.
+const vnOriginalAnswer=document.getElementById('rel-answer').onclick;
+document.getElementById('rel-answer').onclick=function(e){
+ vnOriginalAnswer.call(this,e);
+ if(vn[3]==='send')relLines[0]='우영아. 네 메시지 보고 바로 전화했어.';
+ else if(vn[3]==='erase')relLines[0]='……여보세요? 나 너한테 할 말 있어서 전화했어.';
+ else relLines[0]='……여보세요?';
+ relRenderCall();
+};
+const vnOldAttendance=relationshipAttendance;
+relationshipAttendance=function(...args){vnOldAttendance(...args);vnRefresh();};
+const vnOldShow=show;
+show=function(id){vnOldShow(id);if(id==='home')vnRefresh();};
+vnRefresh();
+
+// ===== 2부 · 우리의 7년: 하루마다 열리는 연애 기록 (사진/편지함 없음) =====
+// 1~7일 차 출석 후 순차 해금. 모두 선택 열람, 권태기 해금 조건과 무관.
+const LOVE_YEARS_KEY='fanphone-love-years-choices-v1';
+let loveYearsChoices={};
+try{const s=JSON.parse(localStorage.getItem(LOVE_YEARS_KEY)||'{}');if(s&&typeof s==='object'&&!Array.isArray(s))loveYearsChoices=s;}catch{}
+function saveLoveYears(){localStorage.setItem(LOVE_YEARS_KEY,JSON.stringify(loveYearsChoices));}
+function loveYearsCount(){return relUnlocked()?Math.min(7,new Set(rel.dates||[]).size):0;}
+const loveYearsScenes=[
+ {title:'1년 차 · 아직도 너만 보면 설레',story:'🐱 산: 정우영\n🐱 산: 우리 벌써 1년이래 ㅋㅋㅋ\n🐱 산: 근데 나 아직도 너 보면 떨림\n🐱 산: 어떡하냐 이거',options:[
+  ['same','나도 그래 ♡','🐱 산: ㅋㅋㅋㅋ 아 귀여워\n🐱 산: 앞으로도 계속 떨려 줘'],
+  ['tease','1년이나 됐는데 아직도?','🐱 산: 10년 돼도 그럴 건데?\n🐱 산: 두고 봐 ㅋㅋ']
+ ]},
+ {title:'2년 차 · 네가 좋아하는 건 다 알아',story:'📝 메모장에 새로운 기록이 남아 있습니다.\n\n「최산 사용 설명서」\n\n매운 거 좋아함.\n피곤하면 말수가 줄어듦.\n기분 좋으면 웃는 소리가 커짐.\n잠들기 전에 꼭 사랑한다고 해 줘야 함.\n\n그리고……\n자기가 귀여운 줄 모름.\n사실 알고 있는 것 같기도.\n\n2년째인데 아직도 모르는 게 많다.'},
+ {title:'3년 차 · 잠들기 전 마지막 목소리',story:'📞 최산 · 수신 통화\n\n🐱 산: 우영아.\n🐱 산: 나 그냥 네 목소리 듣고 싶어서 전화했어.\n🐱 산: 오늘 별일 없었지?\n🐱 산: ……\n🐱 산: 나 오늘 좀 힘들었는데.\n🐱 산: 너 목소리 들으니까 괜찮아진다.\n\n[통화 종료 · 2시간 17분]'},
+ {title:'4년 차 · 우리 다음에도 같이 오자',story:'📅 캘린더 · 산이랑 바다 보러 가기 💗\n\n산이가 바다 보면서 갑자기 말했다.\n\n“우리 내년에도 같이 오자.”\n“내후년에도?”\n“응.”\n“그다음 해에도?”\n“응.”\n“언제까지?”\n“네가 나 싫어질 때까지.”\n\n그럴 일은 없을 것 같다.'},
+ {title:'5년 차 · 우리 싸우지 말자',story:'🐱 산: 우영아\n🐱 산: 아까는 내가 미안했어\n🐱 산: 너 기다리는 거 알면서 늦게 연락했잖아',options:[
+  ['promise','괜찮아. 다음부터는 미리 말해 줘.','🐱 산: 응 약속할게\n🐱 산: 사랑해 우영아'],
+  ['waited','나 진짜 많이 기다렸어.','🐱 산: 알아\n🐱 산: 그래서 더 미안해\n🐱 산: 다음부터는 안 그럴게'],
+  ['cold','됐어. 그냥 자.','🐱 산: ……알겠어\n🐱 산: 그래도 잘 자\n🐱 산: 사랑해']
+ ]},
+ {title:'6년 차 · 너랑 있으면 집 같아',story:'📝 메모장 · 집으로 돌아오는 길\n\n예전에는 산이를 만나러 가는 길이 좋았다.\n\n지금은 산이가 있는 집으로 돌아오는 길이 좋다.\n\n설레는 것보다 편안한 게 더 좋아질 수도 있구나.\n\n나는 이게 사랑이 깊어진 거라고 생각한다.'},
+ {title:'7년 차 · 우리 오래 만났다, 그치?',story:'🎙️ 음성 메모 · 일곱 번째 기념일\n\n🐱 산: 야 정우영.\n🐱 산: 우리 벌써 7년이래.\n🐱 산: ㅋㅋㅋㅋ 신기하지 않냐?\n🐱 산: 근데 나 너랑 있으면 아직도 재밌어.\n🐱 산: 앞으로도 계속 같이 있자.\n🐱 산: 사랑해.\n\n📝 우영의 기록\n7년 동안 단 한 번도 이 사람이 없는 미래를 생각해 본 적이 없다.'}
+];
+const loveYearsButton=document.createElement('button');
+loveYearsButton.type='button';loveYearsButton.className='rel-choice';
+loveYearsButton.id='love-years-open';loveYearsButton.textContent='💗 우리의 7년 · 연애 기록 보기';
+loveYearsButton.hidden=true;
+document.getElementById('vn-open').insertAdjacentElement('afterend',loveYearsButton);
+const loveYearsOverlay=document.getElementById('love-years-overlay');
+function openLoveYear(year){
+ if(year<1||year>loveYearsCount())return;
+ const scene=loveYearsScenes[year-1];
+ document.getElementById('love-years-title').textContent=scene.title;
+ document.getElementById('love-years-story').textContent=scene.story;
+ const choices=document.getElementById('love-years-choices');choices.replaceChildren();
+ const result=document.getElementById('love-years-result');result.textContent='';
+ if(scene.options){
+  for(const [key,label,response] of scene.options){
+   const btn=document.createElement('button');btn.type='button';btn.className='rel-choice';btn.textContent=label;
+   btn.disabled=!!loveYearsChoices[year];
+   btn.addEventListener('click',()=>{
+    if(loveYearsChoices[year])return;
+    loveYearsChoices[year]=key;saveLoveYears();openLoveYear(year);
+   });choices.appendChild(btn);
+  }
+  if(loveYearsChoices[year]){
+   const chosen=scene.options.find(x=>x[0]===loveYearsChoices[year]);
+   if(chosen)result.textContent=chosen[2];
+  }
+ }
+ loveYearsOverlay.classList.add('visible');
+}
+document.getElementById('love-years-close').addEventListener('click',()=>loveYearsOverlay.classList.remove('visible'));
+loveYearsOverlay.addEventListener('click',e=>{if(e.target===loveYearsOverlay)loveYearsOverlay.classList.remove('visible');});
+const loveYearsMenu=document.createElement('div');
+loveYearsMenu.className='card';loveYearsMenu.id='love-years-menu';loveYearsMenu.hidden=true;
+loveYearsButton.insertAdjacentElement('afterend',loveYearsMenu);
+loveYearsButton.addEventListener('click',()=>{
+ loveYearsMenu.hidden=!loveYearsMenu.hidden;
+ if(!loveYearsMenu.hidden)renderLoveYearsMenu();
+});
+function renderLoveYearsMenu(){
+ loveYearsMenu.replaceChildren();
+ const intro=document.createElement('p');intro.className='muted';
+ intro.textContent='출석할 때마다 1년 차부터 차례로 열려요. 지난 기록도 다시 볼 수 있습니다.';
+ loveYearsMenu.appendChild(intro);
+ for(let y=1;y<=7;y++){
+  const btn=document.createElement('button');btn.type='button';btn.className='rel-choice';
+  const unlocked=y<=loveYearsCount();
+  btn.textContent=(unlocked?'💗 ':'🔒 ')+loveYearsScenes[y-1].title+(loveYearsChoices[y]?' · 선택 완료':'');
+  btn.disabled=!unlocked;
+  btn.addEventListener('click',()=>openLoveYear(y));
+  loveYearsMenu.appendChild(btn);
+ }
+}
+function refreshLoveYears(){
+ loveYearsButton.hidden=loveYearsCount()<1;
+ if(loveYearsMenu.hidden===false)renderLoveYearsMenu();
+}
+// 메모 앱에서도 2년 차, 6년 차 기록을 열람할 수 있습니다.
+const loveYearsMemoButtons=[2,6].map(year=>{
+ const scene=loveYearsScenes[year-1];
+ const btn=document.createElement('button');btn.type='button';btn.className='note-item';btn.hidden=true;
+ const name=document.createElement('span');name.className='note-title';name.textContent='💗 '+(year===2?'최산 사용 설명서':'집으로 돌아오는 길');
+ const preview=document.createElement('span');preview.className='note-preview';preview.textContent=year+'년 차 · 오래된 연애 기록';
+ btn.append(name,preview);btn.addEventListener('click',()=>openLoveYear(year));noteList.appendChild(btn);
+ return {year,btn};
+});
+// 7년 차 음성 메모: 기존 음성 메모를 보존하고, 추가 음성은 실제 음원이 아닌 자막형 재생입니다.
+const loveYearsVoiceIndex=voiceMemos.length;
+voiceMemos.push({title:'일곱 번째 기념일',date:'연애 7년 차',duration:24,
+ lines:[['야 정우영.',0],['우리 벌써 7년이래.',3],['ㅋㅋㅋㅋ 신기하지 않냐?',7],
+ ['근데 나 너랑 있으면 아직도 재밌어.',11],['앞으로도 계속 같이 있자.',16],['사랑해.',21]]});
+const loveYearsVoiceButton=document.createElement('button');loveYearsVoiceButton.type='button';
+loveYearsVoiceButton.className='voice-item';loveYearsVoiceButton.hidden=true;
+loveYearsVoiceButton.innerHTML='<span class="voice-icon">🎙️</span><span><span class="voice-name">💗 일곱 번째 기념일</span><small>연애 7년 차 · 24초</small></span>';
+loveYearsVoiceButton.addEventListener('click',()=>openVoice(loveYearsVoiceIndex));
+voiceList.appendChild(loveYearsVoiceButton);
+function refreshLoveYearsExtras(){
+ const count=loveYearsCount();
+ loveYearsMemoButtons.forEach(({year,btn})=>btn.hidden=count<year);
+ loveYearsVoiceButton.hidden=count<7;
+}
+// 4년 차의 여행은 캘린더에서 '연애 기록'으로 열람합니다.
+// 과거 1부 일정은 되살리지 않고 2부의 가상 출석일에만 표시합니다.
+const renderCalendarBeforeLoveYears=renderCalendar;
+renderCalendar=function(){
+ renderCalendarBeforeLoveYears();
+ if(loveYearsCount()<4)return;
+ const fourthReal=[...new Set(rel.dates)].sort()[3];
+ const fourthVirtual=fourthReal?fictionalDay(fourthReal):null;
+ if(!fourthVirtual)return;
+ const day=Number(fourthVirtual.slice(-2));
+ if(calendarKey(day)===fourthVirtual){
+  for(const btn of document.querySelectorAll('#calendar-grid .calendar-day')){
+   if(Number(btn.firstChild?.textContent)===day){
+    const tag=document.createElement('span');tag.className='rel-badge';tag.textContent='🌊';btn.appendChild(tag);
+   }
+  }
+ }
+ if(calSelected===fourthVirtual){
+  const link=document.createElement('button');link.type='button';link.className='rel-choice';
+  link.textContent='🌊 산이랑 바다 보러 가기 · 기록 읽기';
+  link.addEventListener('click',()=>openLoveYear(4));
+  document.getElementById('calendar-detail').appendChild(link);
+ }
+};
+const loveYearsOldAttendance=relationshipAttendance;
+relationshipAttendance=function(...args){
+ loveYearsOldAttendance(...args);refreshLoveYears();refreshLoveYearsExtras();
+};
+const loveYearsOldShow=show;
+show=function(id){
+ if(id==='notes'||id==='voice-memos')refreshLoveYearsExtras();
+ loveYearsOldShow(id);
+ if(id==='home')refreshLoveYears();
+};
+refreshLoveYears();refreshLoveYearsExtras();
 
 </script>
 </body>
