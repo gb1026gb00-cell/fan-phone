@@ -1,6 +1,7 @@
 
 
 
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -229,7 +230,7 @@ const otherConversations=[
   [false,'우영아 내일 연습 시간 바뀐 거 봤어?'],[true,'네 형 ㅋㅋㅋ'],[false,'몇 시인데'],[true,'어...'],[false,'ㅋㅋㅋㅋㅋㅋㅋㅋ'],[true,'지금 확인할게요 잠시만'],[false,'단톡에 공지 올렸잖아'],[true,'봤어요 이제 진짜 봤어요'],[false,'내일 연습 시간 확인했지?']
  ]},
  {name:'정윤호',when:'수요일',lines:[
-  [true,'윤호형'],[true,'오늘 끝나고 뭐해'],[false,'왜?'],[true,'맛있는 거 먹자'],[false,'너 어제도 맛있는 거 먹자고 했잖아 ㅋㅋ'],[true,'어제의 나랑 오늘의 나는 달라'],[false,'ㅋㅋㅋㅋㅋ 말은 잘해'],[true,'가자아아'],[false,'ㅋㅋㅋㅋ 다음에 같이 가자']
+  [true,'윤호'],[true,'오늘 끝나고 뭐해'],[false,'왜?'],[true,'맛있는 거 먹자'],[false,'너 어제도 맛있는 거 먹자고 했잖아 ㅋㅋ'],[true,'어제의 나랑 오늘의 나는 달라'],[false,'ㅋㅋㅋㅋㅋ 말은 잘해'],[true,'가자아아'],[false,'ㅋㅋㅋㅋ 다음에 같이 가자']
  ]},
  {name:'강여상',when:'화요일',lines:[
   [true,'여상아'],[true,'나 진지하게 물어볼 게 있음'],[false,'뭔데'],[true,'나 오늘 좀 잘생기지 않았냐'],[false,'아니'],[true,'야'],[false,'진지하게 물어본다며'],[true,'너랑 말 안 해'],[false,'알겠어 ㅋㅋㅋ']
@@ -1484,6 +1485,53 @@ sanStorySyncChoices();
 
 
 
+// ===== 3년 차 히든 이벤트: 윤호 대화 발견 → 산이 질투 메시지 =====
+// AI 자유 채팅과 엔딩/출석 조건은 변경하지 않습니다.
+const JEALOUS_YUNHO_KEY='fanphone-jealous-yunho-v1';
+const jealousYunhoChat=[
+ [false,'우영아 오늘 밥 먹었어?'],[true,'아직 ㅋㅋㅋ 형은?'],
+ [false,'나도 아직. 같이 먹을래?'],[true,'오 좋아 ㅋㅋㅋㅋ'],
+ [false,'그럼 끝나고 내가 데리러 갈게'],[true,'헐 윤호 최고 ♡'],
+ [false,'ㅋㅋㅋㅋ 하트는 뭐야'],[true,'좋아서 ㅎㅎ'],
+ [false,'산이한테도 얘기해 놔 ㅋㅋㅋ']
+];
+function jealousYunhoReady(){
+ return typeof rel!=='undefined' && typeof relUnlocked==='function' && relUnlocked()
+  && !rel.modeStart && !rel.ending;
+}
+function jealousYunhoRefresh(){
+ const chat=otherConversations.find(c=>c.name==='정윤호');
+ if(!chat || !jealousYunhoReady())return;
+ if(!chat.lines.some(([mine,msg])=>msg==='헐 윤호 최고 ♡')){
+  chat.lines.push(...jealousYunhoChat);
+  chat.preview=chat.lines.at(-1)[1];chat.when='오늘';
+ }
+}
+const openMemberChatBeforeJealous=openMemberChat;
+openMemberChat=function(name){
+ if(name==='정윤호')jealousYunhoRefresh();
+ openMemberChatBeforeJealous(name);
+ if(name!=='정윤호'||!jealousYunhoReady())return;
+ if(localStorage.getItem(JEALOUS_YUNHO_KEY)==='1')return;
+ localStorage.setItem(JEALOUS_YUNHO_KEY,'1');
+ sanStoryAdd('system','윤호와의 대화를 읽은 뒤 · 새 메시지','jealous-yunho-day');
+ const lines=[
+  '정우영', '너 윤호이랑 밥 먹기로 했어?',
+  '아니 뭐 먹는 건 좋은데 ㅋㅋㅋ',
+  '윤호 최고라고 하트까지 보내는 건 뭐냐',
+  '나한테도 그렇게 해 봐 ㅡㅡ',
+  '……아 몰라 그냥 질투 나서 그래',
+  '나도 사랑해 줘 ㅋㅋㅋ ❤️'
+ ];
+ lines.forEach((line,i)=>sanStoryAdd('san',line,'jealous-yunho-san-'+i));
+ const toast=document.createElement('button');toast.type='button';
+ toast.textContent='💌 최산 · 우리의 기록\n산이에게 새 메시지가 도착했습니다.';
+ toast.style.cssText='position:absolute;top:58px;left:14px;right:14px;z-index:60;padding:14px 16px;background:#eef3f9;color:#202632;border:0;border-radius:16px;box-shadow:0 5px 24px #0006;white-space:pre-line;text-align:left;font-size:13px;line-height:1.6';
+ document.querySelector('.phone')?.appendChild(toast);
+ const timer=setTimeout(()=>toast.remove(),6500);
+ toast.onclick=()=>{clearTimeout(timer);toast.remove();renderSanStory();show('san-story-chat');};
+};
+
 // ===== 기존 앱 히든 상호작용 12종 (사진/신규 앱 없이) =====
 const HIDDEN_EVENTS_KEY='fanphone-hidden-events-v1';
 let hiddenEvents={};
@@ -1621,6 +1669,92 @@ show=function(id){hiddenOldShow(id);if(hiddenContainers[id])hiddenRender(id);};
 const hiddenOldRenderCalendar=renderCalendar;
 renderCalendar=function(){hiddenOldRenderCalendar();hiddenContainers.calendar&&document.getElementById('calendar-detail').appendChild(hiddenContainers.calendar);hiddenRender('calendar');};
 for(const app of Object.keys(hiddenContainers))hiddenRender(app);
+
+
+// ===== 2부 달달한 추가 이벤트: 기존 엔딩·출석·AI 대화는 변경하지 않음 =====
+const SWEET_PHONE_KEY='fanphone-sweet-phone-v1';
+function sweetDating(){return typeof relUnlocked==='function'&&relUnlocked()&&!rel.modeStart&&!rel.ending;}
+function sweetToast(label,action){
+ const t=document.createElement('button');t.type='button';t.className='secret-toast visible';t.style.zIndex='45';t.textContent=label;
+ t.onclick=()=>{t.remove();action();};document.querySelector('.phone').appendChild(t);
+ setTimeout(()=>t.remove(),9500);
+}
+function sweetMessages(lines,tag){
+ if(!sweetDating())return;
+ sanStoryAdd('system','최산 · 새 메시지',tag+'-heading');
+ lines.forEach((line,i)=>sanStoryAdd('san',line,tag+'-'+i));
+ sweetToast('💬 최산 · 새 메시지가 도착했어요',()=>show('san-story'));
+}
+// 매 연차 첫 방문에만 산이가 먼저 보내는 메시지. 별도의 기존 출석 계산을 수정하지 않습니다.
+const SWEET_YEAR_LINES={
+ 1:['정우영','뭐 해','보고 싶다','지금 보러 가도 돼?'],
+ 2:['우영아아아','나 오늘 맛있는 거 먹었는데','너 생각나더라','내일 같이 먹으러 가자'],
+ 3:['자기야','ㅋㅋㅋㅋㅋㅋ','왜 대답 안 해','자기야아아','나랑 데이트하자'],
+ 4:['우영아','오늘 일찍 끝나?','나도 일찍 끝날 것 같은데','영화 볼래?'],
+ 5:['정우영','나 너네 집 앞','ㅋㅋㅋㅋㅋ','내려와','같이 밥 먹자'],
+ 6:['우영아 보고 싶어','오늘따라 좀 많이','별일 있는 건 아니고','그냥 너 보고 싶어서'],
+ 7:['우영아','오늘 저녁에 시간 있어?','우리 둘이 데이트할까','너 좋아하는 데 예약해 둘게']
+};
+function sweetCheckYear(){
+ if(!sweetDating())return;
+ const currentYear=loveYearsCount();
+ if(currentYear<1)return;
+ const newYears=[];
+ // 이전 연차에 이미 도달한 독자도 미수신 선톡을 차례대로 받도록 합니다.
+ for(let year=1;year<=Math.min(7,currentYear);year++){
+  const key='fanphone-sweet-year-'+year+'-v1';
+  if(localStorage.getItem(key))continue;
+  const lines=SWEET_YEAR_LINES[year];
+  if(!lines)continue;
+  localStorage.setItem(key,'1');
+  sanStoryAdd('system','💗 연애 '+year+'년 차 · 최산의 선톡','sweet-year-'+year+'-heading');
+  lines.forEach((line,i)=>sanStoryAdd('san',line,'sweet-year-'+year+'-'+i));
+  newYears.push(year);
+ }
+ if(newYears.length){
+  const label=newYears.length===1?'💬 최산 · 새 메시지가 도착했어요':'💬 최산 · 놓쳤던 선톡 '+newYears.length+'개 연차가 도착했어요';
+  sweetToast(label,()=>show('san-story'));
+ }
+}
+// 연락처 화면: 실제 기존 연락처 앱이 없으므로 전화 화면 안에 '저장된 이름' 항목을 추가합니다.
+const sweetContact=document.createElement('button');sweetContact.type='button';sweetContact.className='note-item';
+sweetContact.style.marginTop='16px';sweetContact.textContent='💗 연락처 · 최산의 휴대폰에 저장된 내 이름 확인하기';
+sweetContact.onclick=()=>{
+ if(!sweetDating())return;
+ alert('📇 최산의 연락처\n\n우영♡\n\n최산이 정우영을 저장한 이름입니다.');
+ localStorage.setItem('fanphone-sweet-contact-seen-v1','1');
+};
+const sweetCallList=document.getElementById('call-list');
+const sweetCall=document.createElement('button');sweetCall.type='button';sweetCall.className='note-item';
+sweetCall.textContent='📞 최산 ❤️ · 오전 01:24 · 3시간 17분 (히든 통화)';
+const sweetCallDialog=document.createElement('div');sweetCallDialog.className='rel-overlay';sweetCallDialog.style.display='none';sweetCallDialog.setAttribute('role','dialog');sweetCallDialog.setAttribute('aria-modal','true');
+sweetCallDialog.innerHTML='<div class="rel-box" style="max-height:80vh;overflow:auto;padding:22px;background:#25252d;color:white;border-radius:18px"><h3>📞 새벽 3시간 통화</h3><div id="sweet-call-script" style="white-space:pre-wrap;line-height:1.9;font-size:14px"></div><button id="sweet-call-close" class="primary" type="button">통화 기록 닫기</button></div>';
+document.querySelector('.phone').appendChild(sweetCallDialog);
+const sweetCallScript=[
+ '최산: 정우영.','정우영: 어.','최산: 안 자?','정우영: 너랑 전화하고 있잖아.','최산: ㅋㅋㅋㅋ 그건 그렇네.','정우영: 왜.','최산: 그냥.','정우영: 그냥 뭐.','최산: 목소리 듣고 싶어서.','정우영: 세 시간째 듣고 있잖아, 미친놈아.','최산: ㅋㅋㅋㅋㅋㅋㅋ','정우영: 웃지 마. 내일 너 졸리다고 징징거리기만 해 봐.','최산: 알았어. 끊을까?','정우영: ……','최산: 우영아?','정우영: 아니.','최산: 뭐가 아니야?','정우영: 끊지 말라고.','최산: ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ','정우영: 아 진짜 웃지 말라고!!!','최산: 알았어, 안 끊어.','정우영: …응.','최산: 근데 우리 내일 만나잖아.','정우영: 그래서?','최산: 만나서도 계속 붙어 있을 건데.','정우영: 어쩌라고.','최산: 지금도 보고 싶다고 하면 좀 이상하냐?','정우영: ……','최산: 우영아.','정우영: 나도.','최산: 응?','정우영: 나도 보고 싶다고.','최산: ……','정우영: 야. 왜 말이 없어.','최산: 아, 잠깐.','정우영: 왜.','최산: 너무 좋아서.','정우영: …미친놈.','최산: 사랑해.','정우영: 나도.','최산: 뭐?','정우영: 사랑한다고, 최산.','최산: ㅋㅋㅋㅋㅋ 나 오늘 잠 다 잤다.','— 통화 종료 · 오전 04:41 —'
+];
+sweetCallDialog.querySelector('#sweet-call-script').textContent=sweetCallScript.join('\n\n');
+sweetCall.onclick=()=>{if(sweetDating())sweetCallDialog.style.display='flex';};
+sweetCallDialog.querySelector('#sweet-call-close').onclick=()=>{
+ sweetCallDialog.style.display='none';
+ if(!sweetDating()||localStorage.getItem('fanphone-sweet-call-seen-v1'))return;
+ localStorage.setItem('fanphone-sweet-call-seen-v1','1');
+ sweetMessages(['우영아','우리 어제 전화 몇 시간 했는지 알아?','세 시간 넘게 했더라 ㅋㅋㅋㅋ','근데 나 오늘도 전화하고 싶어','오늘도 해 줄 거지? ❤️'],'sweet-call-followup');
+};
+// 기존 화면 전환을 감싸 추가 요소만 노출하고, 기존 show 동작은 그대로 유지.
+const sweetOldShow=show;
+show=function(id){
+ sweetOldShow(id);
+ if(id==='calls'){
+  sweetContact.hidden=!sweetDating();sweetCall.hidden=!sweetDating();
+  if(sweetDating()){
+   if(!sweetContact.isConnected)sweetCallList.appendChild(sweetContact);
+   if(!sweetCall.isConnected)sweetCallList.appendChild(sweetCall);
+  }
+ }
+ if(id==='home'||id==='san-story'||id==='messages')sweetCheckYear();
+};
+setTimeout(sweetCheckYear,1100);
 
 </script>
 </body>
