@@ -1757,6 +1757,40 @@ show=function(id){
 };
 setTimeout(sweetCheckYear,1100);
 
+// ===== 윤호 대화 목록 미리보기 + 이전 버전에서 저장된 오타 교정 =====
+// 기존 독자의 로컬 저장 메시지도 그대로 보존하면서 오타만 수정합니다.
+function fixSavedYunhoWording(){
+ let changed=false;
+ for(const item of sanStoryMessages){
+  if(typeof item.text!=='string')continue;
+  const fixed=item.text.replace(/윤호이랑/g,'윤호랑').replace(/윤호형/g,'윤호');
+  if(fixed!==item.text){item.text=fixed;changed=true;}
+ }
+ if(changed){saveSanStory();renderSanStory();sanStoryRefreshPreview();}
+}
+function refreshYunhoListPreview(){
+ if(!jealousYunhoReady())return;
+ jealousYunhoRefresh();
+ const chat=otherConversations.find(c=>c.name==='정윤호');
+ if(!chat)return;
+ const idx=otherConversations.indexOf(chat);
+ const card=conversationList.querySelectorAll('.conversation-card')[idx+1];
+ if(!card)return;
+ const preview=card.querySelector('.preview-line');
+ const when=card.querySelector('.row-side .muted');
+ if(preview)preview.textContent=chat.preview;
+ if(when)when.textContent=chat.when;
+}
+fixSavedYunhoWording();
+// 채팅방에 들어가기 전에도 최신 메시지와 '오늘' 표시가 보이게 합니다.
+const showBeforeYunhoPreview=show;
+show=function(id){
+ if(id==='messages')refreshYunhoListPreview();
+ showBeforeYunhoPreview(id);
+};
+setTimeout(refreshYunhoListPreview,1200);
+
+
 </script>
 </body>
 </html>
