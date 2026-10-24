@@ -131,6 +131,9 @@
 .collection-entry.locked{opacity:.55}.collection-entry strong{display:block;font-size:16px}.collection-entry small{color:#b8afbd}
 .collection-screen .story-button{margin-top:20px}.bonus-call-screen{background:linear-gradient(#252c39,#101117);padding:70px 23px 35px;text-align:center}
 .bonus-call-screen .story-line{text-align:left;min-height:160px}.collection-foot{font-size:12px;color:#aaa;line-height:1.8}
+
+/* 2부: 출석 및 권태기 */
+.rel-banner{margin-top:16px;border:1px solid #5b4650;background:#291f2a;border-radius:14px;padding:12px;font-size:12px;line-height:1.8;color:#f3dbe5}.rel-badge{position:absolute;right:2px;top:2px;font-size:12px}.rel-overlay{display:none;position:absolute;inset:0;background:#08080bf0;z-index:40;align-items:center;justify-content:center;padding:25px}.rel-overlay.visible{display:flex}.rel-phone{width:100%;text-align:center}.rel-phone .story-line{min-height:130px;line-height:2.2;font-size:19px}.rel-choice{width:100%;padding:15px;border-radius:14px;border:1px solid #66535e;background:#29232d;color:white;margin:7px 0}.rel-stamp{font-size:12px;display:block;color:#ffb9d0}.rel-search{display:block;width:100%;padding:15px;text-align:left;border:1px solid #444;background:#25252a;border-radius:12px;color:#eee;margin-top:10px}.rel-missed{border-left:3px solid #a04c66;padding-left:12px}
 </style>
 </head>
 <body>
@@ -161,7 +164,7 @@
 <section class="screen panel" id="photos"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>사진</h2></div><h2>보관함</h2><p class="photo-count" id="photo-count">4장의 사진</p><div class="photo-grid" id="photo-grid"></div></section>
 <section class="screen photo-viewer" id="photo-viewer"><div class="viewer-toolbar"><button class="back" onclick="show('photos')">‹ 보관함</button><span class="viewer-counter" id="viewer-counter">1 / 4</span></div><div class="viewer-stage" id="viewer-stage"><button class="viewer-nav prev" id="photo-prev" type="button" aria-label="이전 사진">‹</button><img id="viewer-image" alt="선택한 앨범 사진"><button class="viewer-nav next" id="photo-next" type="button" aria-label="다음 사진">›</button></div><div class="viewer-bottom">좌우 버튼이나 화면을 밀어서 사진을 넘겨보세요</div></section>
 <section class="screen panel" id="settings"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>설정</h2></div><div class="card">다크 모드 · 켜짐</div><div class="card">AI 서버 자동 연결<br><span class="muted">fan-phone.vercel.app</span></div><div class="card"><button class="back" id="admin-test-toggle" type="button">🧪 관리자 테스트 모드 켜기</button><div class="muted" id="admin-test-status" style="margin-top:8px">일반 방문자 모드</div></div><div class="card"><button class="back" id="resetChat">이 기기의 채팅 기록 삭제</button></div><div class="card"><button class="back" id="replay-ending" type="button" style="display:none">💌 비밀 엔딩 다시 보기</button></div><div class="card"><button class="back" id="replay-call" type="button" style="display:none">📞 최산의 전화 다시 받기</button></div><div class="card"><button class="back" id="replay-true" type="button" style="display:none">💗 진짜 엔딩 다시 보기</button></div><div class="card"><button class="back" onclick="show('lock')">휴대폰 잠그기</button></div></section>
-<section class="screen panel" id="story-reset-settings"><div class="toolbar"><button class="back" onclick="show('settings')">‹ 설정</button><h2>스토리 다시 시작</h2></div><div class="card"><h3>처음부터 다시 플레이하기</h3><p class="muted">메모·음성 메모·엔딩·히든 편지 등 스토리 진행 기록이 초기화됩니다. AI 채팅의 서버 일일 제한은 초기화되지 않습니다.</p><button class="restart-btn" onclick="restartFanStory()">↺ 처음부터 다시 하기</button></div></section>
+<section class="screen panel" id="story-reset-settings"><div class="toolbar"><button class="back" onclick="show('settings')">‹ 설정</button><h2>스토리 다시 시작</h2></div><div class="card"><h3>처음부터 다시 플레이하기</h3><p class="muted">1부 스토리 진행 상황만 초기화됩니다. 출석도장·연속 출석·2부 진행 상황·엔딩 수집함은 유지됩니다. AI 채팅의 서버 일일 제한도 초기화되지 않습니다.</p><button class="restart-btn" onclick="restartFanStory()">↺ 처음부터 다시 하기</button></div></section>
 <section class="screen panel" id="ai"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>AI 채팅</h2></div><div class="card">카카오톡 채팅 탭의 최산 대화방에서 대화할 수 있어요.</div><button class="primary" onclick="show('messages')">카카오톡으로 이동</button></section>
 
 <button class="secret-toast" id="secret-toast" type="button"><strong>📝 메모 · 숨겨진 메모를 발견했습니다.</strong><small>정우영이 끝내 보내지 못한 메시지 · 눌러서 확인</small></button>
@@ -173,6 +176,10 @@
 <section class="screen story-panel" id="story-final"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><span class="muted">TRUE ENDING</span></div><div class="secret-heart">♡</div><h2 style="text-align:center">문을 열면</h2><div class="final-letter" id="true-ending-letter"></div><button class="story-button" id="true-ending-close" style="margin-top:28px">휴대폰으로 돌아가기</button><button class="restart-btn" onclick="restartFanStory()">↺ 처음부터 다시 하기</button></section>
 
 <section class="screen collection-screen" id="ending-collection"><div class="toolbar"><button class="back" onclick="show('home')">‹ 홈</button><h2>엔딩 기록</h2></div><p class="muted">이 휴대폰에서 발견한 결말을 모아 두었습니다.</p><div id="collection-true" class="collection-entry locked"></div><div id="collection-bad" class="collection-entry locked"></div><div id="collection-reward" class="collection-entry" hidden><strong>🏆 모든 진심을 확인했습니다.</strong><small>두 가지 결말을 모두 발견했어요.</small><button id="bonus-call-open" class="story-button" type="button">☎ 마지막 통화 듣기</button></div><p class="collection-foot">수집 기록은 ‘처음부터 다시 하기’를 눌러도 남습니다. 같은 브라우저에서만 저장돼요.</p></section>
+
+<section class="screen panel" id="rel-ending"><div class="toolbar"><button class="back" onclick="show('home')">⌂ 홈</button><span class="muted">AFTER STORY</span></div><div class="secret-heart">♡</div><h2 id="rel-ending-title" style="text-align:center"></h2><p id="rel-ending-body" style="white-space:pre-line;line-height:2.1;text-align:center;margin-top:35px"></p><button class="story-button" onclick="show('home')">휴대폰으로 돌아가기</button></section>
+<div class="rel-overlay" id="rel-incoming"><div class="rel-phone"><p class="muted">수신 전화 · 최산</p><div style="font-size:70px;margin:25px">☎</div><h1>최산</h1><p class="muted">팬메이드 가상 통화</p><button class="rel-choice" id="rel-answer">📞 전화 받기</button></div></div>
+<section class="screen bad-call-screen" id="rel-call"><p class="muted">최산 · 통화 중</p><h2>📞 최산</h2><div class="story-line" id="rel-call-line"></div><button class="story-button" id="rel-next">계속 듣기 →</button><div id="rel-choices" hidden><button class="rel-choice" data-choice="reconcile">💗 산이를 받아 준다</button><button class="rel-choice" data-choice="breakup">🥀 산이와 헤어진다</button></div><p class="story-hint">최산의 말만 들려옵니다.</p></section>
 <section class="screen bonus-call-screen" id="bonus-call"><p class="muted">히든 통화 · 최산</p><div style="font-size:54px;margin-top:25px">☎</div><h2>최산</h2><div class="story-line" id="bonus-call-line"></div><button class="story-button" id="bonus-call-next" type="button">계속 듣기 →</button><p class="muted">팬메이드 가상 통화 · 최산의 대사만 표시됩니다.</p></section>
 <div class="homebar"></div>
 </main>
@@ -379,6 +386,8 @@ document.getElementById('admin-test-toggle').onclick = () => {
 document.getElementById('chatForm').addEventListener('submit',async e=>{
  e.preventDefault();if(busy)return;const message=input.value.trim();if(!message)return;
  addBubble(message,true);input.value='';history.push({role:'user',content:message});saveHistory();document.getElementById('last-preview').textContent=message;
+ if(typeof relationshipAttendance==='function')relationshipAttendance(message);
+ if(typeof relationshipLocalReply==='function'&&relationshipLocalReply(message)){return;}
  busy=true;send.disabled=true;state.textContent='최산이 답장을 쓰고 있어요…';const waiting=addBubble('입력 중…',false,true);
  try{
   const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json',...(adminTestKey?{'X-Admin-Test-Key':adminTestKey}:{})},body:JSON.stringify({messages:history.slice(-16),relationshipMode:(JSON.parse(localStorage.getItem('fan-phone-story-v2')||'{}').trueUnlocked===true?'dating':'friends')}),signal:AbortSignal.timeout(30000)});
@@ -386,7 +395,7 @@ document.getElementById('chatForm').addEventListener('submit',async e=>{
   if(!response.ok)throw new Error(data.error||'연결 오류 ('+response.status+')');
   if(typeof data.reply!=='string'||!data.reply.trim())throw new Error('답장이 비어 있어요.');
   waiting.textContent=data.reply.trim();waiting.classList.remove('pending');history.push({role:'assistant',content:data.reply.trim()});saveHistory();document.getElementById('last-preview').textContent=data.reply.trim();state.textContent=adminTestKey?'🧪 관리자 테스트 응답 · AI 비용 발생':'AI가 생성한 가상 대화입니다.';
- }catch(err){waiting.parentElement.remove();history.pop();saveHistory();state.textContent='답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
+ }catch(err){waiting.parentElement.remove();saveHistory();state.textContent='메시지는 저장됐어요 · 답장 실패: '+(err.name==='TimeoutError'?'응답 시간 초과':err.message);}
  finally{busy=false;send.disabled=false;input.focus();}
 });
 // 새로고침 후에도 이 브라우저에서 이전 대화 확인 가능
@@ -859,7 +868,7 @@ storyResetButton.style.marginTop='14px';
 storyResetButton.onclick=()=>show('story-reset-settings');
 document.getElementById('settings').appendChild(storyResetButton);
 function restartFanStory(){
- if(!confirm('스토리 진행 상황을 모두 초기화하고 처음부터 다시 할까요?\n(하루 AI 채팅 횟수는 초기화되지 않습니다.)'))return;
+ if(!confirm('1부 스토리만 처음부터 다시 할까요?\n(출석 기록·2부 진행 상황·엔딩 수집함은 유지됩니다.)'))return;
  clearTimeout(window.incomingCallTimer);
  // 본 사이트에서 사용하는 스토리 관련 로컬 키만 삭제합니다.
  [SECRET_KEY,STORY_KEY,hiddenLetterStorage].forEach(k=>localStorage.removeItem(k));
@@ -868,7 +877,7 @@ function restartFanStory(){
  // 같은 브라우저에서 쓰는 별도 진행 플래그가 있다면 함께 초기화합니다.
  Object.keys(localStorage).filter(k=>k.startsWith('fan-phone-')&&
    !k.toLowerCase().includes('admin')&&
-   ![SECRET_KEY,STORY_KEY,hiddenLetterStorage,CHAT_STORAGE_KEY,'fanphone-ending-gallery-v1'].includes(k)
+   ![SECRET_KEY,STORY_KEY,hiddenLetterStorage,CHAT_STORAGE_KEY,'fanphone-ending-gallery-v1','fanphone-hidden-call-seen','fanphone-relationship-ch2-v1'].includes(k)
  ).forEach(k=>localStorage.removeItem(k));
  location.reload();
 }
@@ -951,9 +960,100 @@ document.getElementById('bonus-call-open').onclick=()=>{
 };
 document.getElementById('bonus-call-next').onclick=()=>{
  if(bonusCallStep<bonusCallLines.length-1){bonusCallStep++;renderBonusCall();}
- else show('ending-collection');
+ else {localStorage.setItem('fanphone-hidden-call-seen','1');show('ending-collection');if(typeof refreshRelationship==='function')refreshRelationship();}
 };
+
+
+// ===== 2부 · 사랑이 익숙해지는 시간 =====
+const REL_KEY='fanphone-relationship-ch2-v1';
+let rel={dates:[],modeStart:null,postDates:[],memo:false,missed:[],search:false,ending:null,replyIndex:0};
+try{const r=JSON.parse(localStorage.getItem(REL_KEY)||'{}');if(r&&typeof r==='object')rel={...rel,...r};}catch{}
+function saveRel(){localStorage.setItem(REL_KEY,JSON.stringify(rel));}
+function kstDay(d=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);}
+function dayDiff(a,b){return Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/86400000);}
+function streakDates(dates){const ds=[...new Set(dates)].sort();if(!ds.length)return 0;let n=1;for(let i=ds.length-1;i>0;i--){if(dayDiff(ds[i-1],ds[i])===1)n++;else break;}return n;}
+function relUnlocked(){return endingCollection.trueEnd&&endingCollection.badEnd&&localStorage.getItem('fanphone-hidden-call-seen')==='1';}
+function relInBurnout(){return !!rel.modeStart&&!rel.ending;}
+function relPostCount(){return rel.postDates.length;}
+function relReady(){return relInBurnout()&&relPostCount()>=3&&rel.memo&&rel.missed.includes('one')&&rel.missed.includes('two')&&rel.search;}
+function relationshipAttendance(){
+ if(!relUnlocked()||rel.ending)return;
+ const today=kstDay();if(!rel.dates.includes(today)){rel.dates.push(today);rel.dates.sort();}
+ // 7 consecutive attendance days completed -> burnout begins on the NEXT calendar day with a message.
+ if(!rel.modeStart&&!rel.seventhDay&&streakDates(rel.dates)>=7)rel.seventhDay=today;
+ if(!rel.modeStart&&rel.seventhDay&&dayDiff(rel.seventhDay,today)>=1){rel.modeStart=today;rel.postDates=[today];}
+ else if(rel.modeStart&&!rel.postDates.includes(today))rel.postDates.push(today);
+ saveRel();refreshRelationship();
+}
+const coldReplies=[
+ '응\n나 지금 좀 바빠. 이따 얘기하자',
+ '아 미안. 이제 봤어',
+ '오늘은 좀 피곤해서\n먼저 자도 되지?',
+ '응 알겠어',
+ '아니 화난 거 아니야\n그냥 정신이 없어',
+ '영아 나중에 얘기하자. 미안',
+ '응. 밥은 먹었어?',
+ '아… 그랬구나\n미안 지금 좀 정신없다',
+ '너한테 뭐라 하는 거 아니야\n그냥 오늘 좀 힘들어서',
+ '알았어. 내일 얘기하자'
+];
+function relationshipLocalReply(message){
+ if(!relInBurnout())return false;
+ // Prewritten fictional lines: no extra server usage; keep deliberate silence and restrained language.
+ const m=message.toLowerCase();let reply;
+ if(/헤어지|끝내자|그만하자/.test(m))reply='…영아\n그런 말은 하지 마.\n나 지금 전화할게';
+ else if(/사랑해|좋아해/.test(m))reply='…응\n나도.\n미안 지금 일하는 중이라';
+ else if(/왜|서운|변했|식었/.test(m))reply='아니 그런 거 아니야\n나 요즘 진짜 정신없어서 그래';
+ else if(/보고.?싶/.test(m))reply='나도 보고 싶지\n근데 이번 주는 좀 어려울 것 같아';
+ else if(/잘.?자|굿나잇/.test(m))reply='응 너도 잘 자';
+ else reply=coldReplies[rel.replyIndex++%coldReplies.length];
+ history.push({role:'assistant',content:reply});saveHistory();addBubble(reply,false);
+ document.getElementById('last-preview').textContent=reply;
+ state.textContent='🥀 연애 8년 차 · 권태기 (스토리 대사)';saveRel();return true;
+}
+const relHome=document.createElement('div');relHome.className='rel-banner';relHome.id='rel-home';document.getElementById('home').appendChild(relHome);
+function refreshRelationship(){
+ if(!relUnlocked()){relHome.textContent='🔒 2부 · 두 엔딩과 마지막 히든 통화를 모두 완료하면 열립니다.';return;}
+ if(rel.ending){relHome.textContent='📖 2부 완료 · '+(rel.ending==='reconcile'?'다시, 사랑':'익숙했던 우리')+' · 엔딩 기록에 보관됨';return;}
+ if(!rel.modeStart){relHome.textContent='💗 연애 출석 '+rel.dates.length+'일 · 연속 '+streakDates(rel.dates)+'일\n산이에게 하루 한 번 메시지를 남기면 캘린더에 💗가 찍혀요. 7일 연속 출석 후 다음 날부터 권태기가 시작됩니다.';return;}
+ relHome.textContent='🥀 연애 8년 차 · 권태기 '+relPostCount()+'주 차\n화해 이벤트: 출석 '+Math.min(relPostCount(),3)+'/3 · 메모 '+(rel.memo?'✓':'○')+' · 부재중 전화 '+rel.missed.length+'/2 · Safari '+(rel.search?'✓':'○');
+ if(relReady()&&!rel.callShown){rel.callShown=true;saveRel();setTimeout(()=>document.getElementById('rel-incoming').classList.add('visible'),1800);}
+}
+// Calendar stamps: stored by Korean date, independent of AI quota.
+const renderCalendarBeforeRel=renderCalendar;
+renderCalendar=function(){renderCalendarBeforeRel();document.querySelectorAll('#calendar-grid .calendar-day').forEach(btn=>{
+ const d=Number(btn.firstChild?.textContent);if(!d)return;const key=calendarKey(d);
+ if(rel.dates.includes(key)){const badge=document.createElement('span');badge.className='rel-badge';badge.textContent='💗';btn.appendChild(badge);}
+ });if(rel.dates.includes(calSelected)){const text=rel.modeStart&&dayDiff(rel.modeStart,calSelected)>=0?'🥀 권태기 기간 · 하루는 이야기 속 일주일':'💗 산이에게 메시지를 남긴 날 · 하루는 이야기 속 일 년';document.getElementById('calendar-detail').append(document.createElement('br'),text);}
+};
+// New memo appears only after burnout starts.
+const relNote={title:'익숙해진다는 건',body:'처음에는 하루에도 몇 번씩 사랑한다고 했는데.\n요즘은 내가 먼저 말하지 않으면 듣기 힘들다.\n\n바쁜 건 이해한다. 나도 바쁘니까.\n그런데 바쁜 거랑 마음이 식은 건 어떻게 구분해야 하지.\n\n예전에는 아무 말 없이 있어도 편했는데.\n요즘은 아무 말이 없으면 불안하다.\n\n나는 아직도 산이가 좋다.\n그게 조금 억울하다.'};
+const relMemoButton=document.createElement('button');relMemoButton.className='note-item';relMemoButton.innerHTML='<span class="note-title">🥀 익숙해진다는 건</span><span class="note-preview">요즘은 내가 먼저 말하지 않으면…</span>';
+relMemoButton.onclick=()=>{rel.memo=true;saveRel();document.getElementById('note-detail-title').textContent=relNote.title;document.getElementById('note-detail-body').textContent=relNote.body;show('note-detail');refreshRelationship();};noteList.appendChild(relMemoButton);
+// Two outgoing calls from Wooyoung, not answered by San.
+const relMissedButtons=['one','two'].map((key,i)=>{const btn=document.createElement('button');btn.className='note-item rel-missed';btn.innerHTML='<span class="note-title">📞 최산 · 발신 통화</span><span class="note-preview">응답 없음 · '+(i===0?'오후 11:42':'오전 01:16')+' · 눌러서 확인</span>';btn.onclick=()=>{if(!rel.missed.includes(key))rel.missed.push(key);saveRel();btn.querySelector('.note-preview').textContent='응답 없음 · 확인함';refreshRelationship();};callList.prepend(btn);return btn;});
+const relSearchButton=document.createElement('button');relSearchButton.className='rel-search';relSearchButton.textContent='◷ 남친이 식은거같아요';
+relSearchButton.onclick=()=>{rel.search=true;saveRel();const div=document.getElementById('rel-search-detail')||document.createElement('div');div.id='rel-search-detail';div.className='card';div.style.marginTop='14px';div.textContent='연인이 예전과 달라졌을 때\n\n오래 만난 연인 사이에서 표현이 줄어들 수 있습니다. 하지만 익숙함과 무관심은 같은 말이 아닙니다.\n\n사랑한다는 말을 듣고 싶은 게 그렇게 큰 욕심인가.';div.style.whiteSpace='pre-line';relSearchButton.after(div);refreshRelationship();};safariHistory.prepend(relSearchButton);
+const showBeforeRel=show;show=function(id){
+ if(id==='notes')relMemoButton.hidden=!relInBurnout();
+ if(id==='calls')relMissedButtons.forEach(b=>b.hidden=!relInBurnout());
+ if(id==='safari')relSearchButton.hidden=!relInBurnout();
+ if(id==='calendar')renderCalendar();
+ showBeforeRel(id);if(id==='home')refreshRelationship();
+};
+const relLines=['……여보세요?','영아.','뭐 해. 자?','……아니, 그냥.','너한테 할 말 있어서.','……미안해, 영아.','요즘 내가 너무 바빴지.','연락도 잘 못 하고, 전화도 못 받고.','네가 서운해하는 거 알면서도 계속 나중에 얘기하자고만 했잖아.','……근데 우영아.','나 너 안 사랑하는 거 아니야.','그냥…… 너무 익숙해졌나 봐.','네가 항상 내 옆에 있을 거라고 생각했어.','내가 바쁘다고 하면 이해해 줄 거고, 연락을 못 해도 기다려 줄 거라고.','……그게 당연한 게 아닌데.','미안해.','너한테 익숙해진 거지, 너를 덜 사랑하게 된 게 아니야.','……영아.','나 아직도 너 많이 사랑해.','그러니까……','우리 다시 잘해 보면 안 될까?'];
+let relStep=0;
+function relRenderCall(){document.getElementById('rel-call-line').textContent=relLines[relStep];document.getElementById('rel-next').hidden=relStep===relLines.length-1;document.getElementById('rel-choices').hidden=relStep!==relLines.length-1;}
+document.getElementById('rel-answer').onclick=()=>{document.getElementById('rel-incoming').classList.remove('visible');relStep=0;relRenderCall();show('rel-call');};
+document.getElementById('rel-next').onclick=()=>{if(relStep<relLines.length-1){relStep++;relRenderCall();}};
+document.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{rel.ending=btn.dataset.choice;saveRel();document.getElementById('rel-ending-title').textContent=rel.ending==='reconcile'?'ENDING 04 · 다시, 사랑':'ENDING 05 · 익숙했던 우리';document.getElementById('rel-ending-body').textContent=rel.ending==='reconcile'?'……진짜?\n아, 씨.\n나 진짜 너랑 헤어지는 줄 알았어.\n\n사랑해, 정우영.\n앞으로는 말로만 안 할게.':'……그래.\n네가 그렇게 생각한다면.\n\n미안해, 우영아.\n너 기다리게 해서.\n\n행복해야 해.\n\n[통화 종료]';show('rel-ending');refreshRelationship();});
+const oldRenderEndingCollection=renderEndingCollection;
+renderEndingCollection=function(){oldRenderEndingCollection();const parent=document.getElementById('collection-reward').parentElement;let extra=document.getElementById('rel-gallery');if(!extra){extra=document.createElement('div');extra.id='rel-gallery';extra.className='card';parent.appendChild(extra);}extra.textContent=rel.ending==='reconcile'?'💗 ENDING 04 — 다시, 사랑':rel.ending==='breakup'?'🥀 ENDING 05 — 익숙했던 우리':'🔒 2부 엔딩 — 아직 미발견';};
+// Story reset keeps attendance stamps and chapter 2 relationship progress.
+// The original reset routine excludes REL_KEY from its prefix cleanup.
+refreshRelationship();
 
 </script>
 </body>
 </html>
+⋮⋮⋮⋮
