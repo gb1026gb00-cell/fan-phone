@@ -2,6 +2,7 @@
 
 
 
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -1489,7 +1490,7 @@ sanStorySyncChoices();
 // AI 자유 채팅과 엔딩/출석 조건은 변경하지 않습니다.
 const JEALOUS_YUNHO_KEY='fanphone-jealous-yunho-v1';
 const jealousYunhoChat=[
- [false,'우영아 오늘 밥 먹었어?'],[true,'아직 ㅋㅋㅋ 형은?'],
+ [false,'우영아 오늘 밥 먹었어?'],[true,'아직 ㅋㅋㅋ 너는?'],
  [false,'나도 아직. 같이 먹을래?'],[true,'오 좋아 ㅋㅋㅋㅋ'],
  [false,'그럼 끝나고 내가 데리러 갈게'],[true,'헐 윤호 최고 ♡'],
  [false,'ㅋㅋㅋㅋ 하트는 뭐야'],[true,'좋아서 ㅎㅎ'],
@@ -1516,7 +1517,7 @@ openMemberChat=function(name){
  localStorage.setItem(JEALOUS_YUNHO_KEY,'1');
  sanStoryAdd('system','윤호와의 대화를 읽은 뒤 · 새 메시지','jealous-yunho-day');
  const lines=[
-  '정우영', '너 윤호이랑 밥 먹기로 했어?',
+  '정우영', '너 윤호랑 밥 먹기로 했어?',
   '아니 뭐 먹는 건 좋은데 ㅋㅋㅋ',
   '윤호 최고라고 하트까지 보내는 건 뭐냐',
   '나한테도 그렇게 해 봐 ㅡㅡ',
@@ -1752,7 +1753,7 @@ show=function(id){
    if(!sweetCall.isConnected)sweetCallList.appendChild(sweetCall);
   }
  }
- if(id==='home'||id==='san-story'||id==='messages')sweetCheckYear();
+ if(id==='home'||id==='san-story-chat'||id==='messages')sweetCheckYear();
 };
 setTimeout(sweetCheckYear,1100);
 
