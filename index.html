@@ -590,7 +590,7 @@ document.getElementById('true-ending-close').onclick=()=>show('home');
 refreshStoryUI();
 
 // ── 진엔딩 후일담: 기존 기록은 그대로, 진엔딩 해금 이후에만 추가 ──
-const epilogueUnlocked=()=>story.trueUnlocked===true;
+const epilogueUnlocked=()=>story.trueUnlocked===true || (typeof relUnlocked==='function' && relUnlocked());
 const afterDatingCalendar={
  '2026-10-31':['♥'],
  '2026-11-04':['도쿄여행 · 1일차'],
@@ -992,7 +992,7 @@ document.getElementById('bonus-call-open').onclick=()=>{
 };
 document.getElementById('bonus-call-next').onclick=()=>{
  if(bonusCallStep<bonusCallLines.length-1){bonusCallStep++;renderBonusCall();}
- else {localStorage.setItem('fanphone-hidden-call-seen','1');if(typeof clearOldCalendarAfterHidden==='function')clearOldCalendarAfterHidden();show('ending-collection');if(typeof refreshRelationship==='function')refreshRelationship();}
+ else {localStorage.setItem('fanphone-hidden-call-seen','1');applyEpilogue();refreshDatingLock();if(typeof clearOldCalendarAfterHidden==='function')clearOldCalendarAfterHidden();show('ending-collection');if(typeof refreshRelationship==='function')refreshRelationship();}
 };
 
 
@@ -1013,6 +1013,8 @@ function realDayForFictional(virtualDay){const first=firstAttendanceDay();return
 
 function streakDates(dates){const ds=[...new Set(dates)].sort();if(!ds.length)return 0;let n=1;for(let i=ds.length-1;i>0;i--){if(dayDiff(ds[i-1],ds[i])===1)n++;else break;}return n;}
 function relUnlocked(){return endingCollection.trueEnd&&endingCollection.badEnd&&localStorage.getItem('fanphone-hidden-call-seen')==='1';}
+// 1부를 배드엔딩으로 마지막 완료해도, 2부 해금 시 연애 화면·이름·멤버 후일담을 복원합니다.
+if(relUnlocked()){applyEpilogue();refreshDatingLock();}
 function relInBurnout(){return !!rel.modeStart&&!rel.ending;}
 function relPostCount(){return rel.postDates.length;}
 function relReady(){return relInBurnout()&&relPostCount()>=3&&rel.memo&&rel.missed.includes('one')&&rel.missed.includes('two')&&rel.search;}
@@ -1621,4 +1623,5 @@ for(const app of Object.keys(hiddenContainers))hiddenRender(app);
 </script>
 </body>
 </html>
+⋮⋮⋮⋮
 ⋮⋮⋮⋮
