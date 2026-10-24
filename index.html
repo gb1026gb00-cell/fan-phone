@@ -823,18 +823,7 @@ let hiddenProgress={};
 try{hiddenProgress=JSON.parse(localStorage.getItem(hiddenLetterStorage)||'{}')||{};}catch(e){hiddenProgress={};}
 let hiddenLetterAdded=false;
 function hiddenSave(){try{localStorage.setItem(hiddenLetterStorage,JSON.stringify(hiddenProgress));}catch(e){}}
-// 2부를 해금한 독자는 1부의 단서 화면이 바뀌어도 편지를 놓치지 않도록 합니다.
-// 기존 1부에서는 세 단서를 직접 찾는 히든 해금 방식을 유지합니다.
-function recoverHiddenLetterForChapter2(){
- if(typeof relUnlocked!=='function'||!relUnlocked())return;
- let changed=false;
- for(const key of hiddenRequired){
-  if(hiddenProgress[key]!==true){hiddenProgress[key]=true;changed=true;}
- }
- if(changed)hiddenSave();
- addHiddenLetter();
-}
-function hiddenReady(){return (epilogueUnlocked()&&hiddenRequired.every(k=>hiddenProgress[k]===true)) || (typeof relUnlocked==='function'&&relUnlocked());}
+function hiddenReady(){return epilogueUnlocked()&&hiddenRequired.every(k=>hiddenProgress[k]===true);}
 function addHiddenLetter(){
  if(!hiddenReady()||hiddenLetterAdded)return;
  hiddenLetterAdded=true;
@@ -1049,12 +1038,9 @@ function realDayForFictional(virtualDay){const first=firstAttendanceDay();return
 
 function streakDates(dates){const ds=[...new Set(dates)].sort();if(!ds.length)return 0;let n=1;for(let i=ds.length-1;i>0;i--){if(dayDiff(ds[i-1],ds[i])===1)n++;else break;}return n;}
 function relUnlocked(){return endingCollection.trueEnd&&endingCollection.badEnd&&localStorage.getItem('fanphone-hidden-call-seen')==='1';}
-// 기존 진행 도중 2부가 열릴 때도 누락된 편지를 즉시 복원합니다.
-const refreshDatingLockBeforeHiddenRecovery=refreshDatingLock;
-refreshDatingLock=function(){refreshDatingLockBeforeHiddenRecovery();recoverHiddenLetterForChapter2();};
 epilogueCollectionReady=true;
 // 1부를 배드엔딩으로 마지막 완료해도, 2부 해금 시 연애 화면·이름·멤버 후일담을 복원합니다.
-if(relUnlocked()){applyEpilogue();refreshDatingLock();recoverHiddenLetterForChapter2();}
+if(relUnlocked()){applyEpilogue();refreshDatingLock();}
 function relInBurnout(){return !!rel.modeStart&&!rel.ending;}
 function relPostCount(){return rel.postDates.length;}
 function relReady(){return relInBurnout()&&relPostCount()>=3&&rel.memo&&rel.missed.includes('one')&&rel.missed.includes('two')&&rel.search;}
@@ -1948,4 +1934,5 @@ setTimeout(()=>{if(document.getElementById('home').classList.contains('active'))
 </script>
 </body>
 </html>
+⋮⋮⋮⋮
 ⋮⋮⋮⋮
